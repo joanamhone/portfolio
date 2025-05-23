@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-secondary text-white antialiased;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans font-bold leading-tight;
+  }
+
+  p {
+    @apply leading-relaxed;
+  }
+}
+
+@layer components {
+  .gradient-bg {
+    @apply bg-gradient-to-br from-secondary via-primary to-secondary animate-gradient-xy;
+    background-size: 200% 200%;
+  }
+  
+  .gradient-text {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-primary-light via-accent to-primary;
+  }
+
+  .card {
+    @apply rounded-lg bg-secondary-light backdrop-blur-sm p-6 transition-all duration-300;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .card:hover {
+    @apply transform scale-[1.02] shadow-lg;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .btn {
+    @apply px-6 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-opacity-50;
+  }
+  
+  .btn-primary {
+    @apply btn bg-primary text-white hover:bg-primary-light;
+  }
+  
+  .btn-outline {
+    @apply btn bg-transparent border border-primary text-primary hover:bg-primary hover:text-white;
+  }
+
+  .neon-border {
+    @apply relative rounded-lg overflow-hidden;
+  }
+
+  .neon-border::before {
+    content: '';
+    @apply absolute inset-0 p-[2px] rounded-lg bg-gradient-to-r from-primary via-accent to-primary animate-gradient-x;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .cursor-glow {
+    @apply fixed w-6 h-6 rounded-full pointer-events-none z-50 mix-blend-screen;
+    background: radial-gradient(circle, rgba(123, 120, 255, 0.8) 0%, rgba(123, 120, 255, 0) 70%);
+    transform: translate(-50%, -50%);
+  }
+
+  .pathway {
+    @apply relative overflow-hidden rounded-xl transition-all duration-500 ease-in-out flex flex-col justify-end items-center text-center p-8;
+    min-height: 500px;
+  }
+
+  .pathway::before {
+    content: '';
+    @apply absolute inset-0 opacity-80 transition-opacity duration-500;
+  }
+
+  .pathway:hover::before {
+    @apply opacity-100;
+  }
+
+  .pathway-cyber::before {
+    @apply bg-gradient-to-b from-secondary via-primary-dark to-accent-cyber;
+  }
+
+  .pathway-software::before {
+    @apply bg-gradient-to-b from-secondary via-primary-dark to-accent-software;
+  }
+
+  .pathway-content {
+    @apply relative z-10 transform transition-transform duration-500;
+  }
+
+  .pathway:hover .pathway-content {
+    @apply translate-y-[-10px];
+  }
+}
