@@ -173,6 +173,13 @@ const SoftwarePortfolio: React.FC = () => {
                   tags={["Ruby on Rails", "MariaDB", "Code Review", "Health Tech"]}
                   accentColor="software"
                 />
+              <ProjectCard 
+                  title="Canventory – Clinic Management System"
+                  description="Built a full-stack system to manage patient intake, treatment tracking, inventory, and clinic cashflow. The platform provides real-time data visualizations with interactive graphs and supports report generation to help clinics monitor operations efficiently."
+                  tags={["React", "Vite", "Supabase", "TypeScript", "Data Visualization", "Healthcare", "Vercel"]}
+                  accentColor="software"
+                />
+
 
           </div>
         </div>
