@@ -145,7 +145,7 @@ const CyberSecurityPortfolio: React.FC = () => {
             <ExperienceItem
               title="Cybersecurity Analyst"
               company="MAREN (Malawi Research and Education Network)"
-              period="2023 - Present"
+              period="2024 - Present"
               description="Deploys and manages centralized security infrastructure, coordinates incident response, and automates threat intelligence across the national research and education network."
               highlights={[
                 'Deployed and manages a centralized Wazuh SIEM server aggregating logs from critical internal infrastructure and endpoints.',
