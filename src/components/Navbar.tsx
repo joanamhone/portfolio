@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Home, Shield, Code } from 'lucide-react';
+import { Menu, X, Home, Shield, Code, BookOpen } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Navbar: React.FC = () => {
@@ -56,6 +56,7 @@ const Navbar: React.FC = () => {
           <NavLink to="/" icon={<Home size={16} />} label="Home" />
           <NavLink to="/cybersecurity" icon={<Shield size={16} />} label="Cybersecurity" />
           <NavLink to="/software" icon={<Code size={16} />} label="Software" />
+          <NavLink to="/blog" icon={<BookOpen size={16} />} label="Blog" />
         </div>
 
         {/* Mobile Navigation Toggle */}
@@ -81,6 +82,7 @@ const Navbar: React.FC = () => {
             <MobileNavLink to="/" icon={<Home size={18} />} label="Home" />
             <MobileNavLink to="/cybersecurity" icon={<Shield size={18} />} label="Cybersecurity" />
             <MobileNavLink to="/software" icon={<Code size={18} />} label="Software" />
+            <MobileNavLink to="/blog" icon={<BookOpen size={18} />} label="Blog" />
           </div>
         </motion.div>
       )}

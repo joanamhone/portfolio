@@ -13,7 +13,7 @@ const Home: React.FC = () => {
       className="min-h-screen flex flex-col"
     >
       {/* Hero Section */}
-      <section className="py-20 md:py-32 px-4">
+      <section className="py-20 md:py-32 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto text-center">
           <motion.h1 
             initial={{ y: -50, opacity: 0 }}
@@ -36,7 +36,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* Path Selection */}
-      <section className="flex-grow flex flex-col md:flex-row items-stretch px-4 pb-20">
+      <section className="flex-grow flex flex-col md:flex-row items-stretch pb-20 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto flex flex-col md:flex-row gap-8">
           {/* Cybersecurity Path */}
           <motion.div 

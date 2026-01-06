@@ -38,7 +38,7 @@ const CyberSecurityPortfolio: React.FC = () => {
       className="min-h-screen pt-20"
     >
       {/* Header */}
-      <header className="py-20 px-4">
+      <header className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <Link
             to="/"
@@ -71,8 +71,8 @@ const CyberSecurityPortfolio: React.FC = () => {
       </header>
 
       {/* Skills Section */}
-      <section className="py-12 px-4 bg-secondary/30">
-        <div className="container mx-auto">
+      <section className="py-12 bg-secondary/30">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold mb-8">Technical Skills</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <SkillCategory
@@ -105,7 +105,7 @@ const CyberSecurityPortfolio: React.FC = () => {
       </section>
 
       {/* Featured Projects */}
-      <section className="py-16 px-4">
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <h2 className="text-2xl font-bold mb-8">Featured Projects</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -138,8 +138,8 @@ const CyberSecurityPortfolio: React.FC = () => {
       </section>
 
       {/* Experience */}
-      <section className="py-16 px-4 bg-secondary/30">
-        <div className="container mx-auto">
+      <section className="py-16 bg-secondary/30">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold mb-8">Professional Experience</h2>
           <div className="space-y-8">
             <ExperienceItem
@@ -164,7 +164,7 @@ const CyberSecurityPortfolio: React.FC = () => {
       </section>
 
       {/* Certifications */}
-      <section className="py-16 px-4">
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <h2 className="text-2xl font-bold mb-8">Certifications</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -174,7 +174,7 @@ const CyberSecurityPortfolio: React.FC = () => {
         </div>
       </section>
 
-     <section className="py-16 px-4 text-center">
+     <section className="py-16 px-4 sm:px-6 lg:px-8 text-center">
   <div className="container mx-auto text-center">
   <h2 className="text-2xl md:text-3xl font-bold mb-6">
     Interested in cybersecurity collaboration?

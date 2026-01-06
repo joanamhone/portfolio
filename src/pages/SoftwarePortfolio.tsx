@@ -30,7 +30,7 @@ const SoftwarePortfolio: React.FC = () => {
       className="min-h-screen pt-20"
     >
       {/* Header */}
-      <header className="py-20 px-4">
+      <header className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <Link to="/" className="inline-flex items-center text-white/70 hover:text-accent-software mb-6 transition-colors">
             <ChevronLeft size={16} className="mr-1" />
@@ -58,8 +58,8 @@ const SoftwarePortfolio: React.FC = () => {
       </header>
 
       {/* Skills Section */}
-      <section className="py-12 px-4 bg-secondary/30">
-        <div className="container mx-auto">
+      <section className="py-12 bg-secondary/30">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold mb-8">Technical Skills</h2>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -134,7 +134,7 @@ const SoftwarePortfolio: React.FC = () => {
       </section>
 
       {/* Featured Projects */}
-      <section className="py-16 px-4">
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <h2 className="text-2xl font-bold mb-8">Featured Projects</h2>
           
@@ -186,8 +186,8 @@ const SoftwarePortfolio: React.FC = () => {
       </section>
 
       {/* Experience */}
-      <section className="py-16 px-4 bg-secondary/30">
-        <div className="container mx-auto">
+      <section className="py-16 bg-secondary/30">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold mb-8">Professional Experience</h2>
           
           <div className="space-y-8">
@@ -245,7 +245,7 @@ const SoftwarePortfolio: React.FC = () => {
       </section> */}
 
       {/* CTA Section */}
-      <section className="py-16 px-4 bg-gradient-to-r from-primary-dark to-secondary">
+      <section className="py-16 bg-gradient-to-r from-primary-dark to-secondary">
         <div className="container mx-auto text-center">
           <h2 className="text-2xl md:text-3xl font-bold mb-6">
             Looking for a software engineering collaborator?

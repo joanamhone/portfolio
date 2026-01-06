@@ -6,6 +6,9 @@ import { AnimatePresence } from 'framer-motion';
 import Home from './pages/Home';
 import CyberSecurityPortfolio from './pages/CyberSecurityPortfolio';
 import SoftwarePortfolio from './pages/SoftwarePortfolio';
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
+import AdminPanel from './pages/AdminPanel';
 
 // Components
 import Layout from './components/Layout';
@@ -21,6 +24,9 @@ const AnimatedRoutes = () => {
         <Route path="/" element={<Home />} />
         <Route path="/cybersecurity" element={<CyberSecurityPortfolio />} />
         <Route path="/software" element={<SoftwarePortfolio />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:id" element={<BlogPost />} />
+        <Route path="/admin" element={<AdminPanel />} />
       </Routes>
     </AnimatePresence>
   );
