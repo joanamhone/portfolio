@@ -13,6 +13,7 @@ import SocialShare from '../components/SocialShare';
 import RelatedPosts from '../components/RelatedPosts';
 import { calculateReadingTime } from '../lib/utils';
 import { trackPostView, trackCommentSubmit } from '../lib/analytics';
+import { useToast } from '../components/Toast';
 
 interface CommentForm {
   author_name: string;
