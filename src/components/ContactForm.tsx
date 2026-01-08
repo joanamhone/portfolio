@@ -1,9 +1,11 @@
 import React, { useRef, useState } from 'react';
 import emailjs from '@emailjs/browser';
+import { useToast } from './Toast';
 
 const ContactForm: React.FC = () => {
   const form = useRef<HTMLFormElement>(null);
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const { showToast } = useToast();
 
   const sendEmail = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,10 +23,12 @@ const ContactForm: React.FC = () => {
       .then(
         () => {
           setStatus('sent');
+          showToast('success', 'Message sent successfully!');
           if (form.current) form.current.reset();
         },
         () => {
           setStatus('error');
+          showToast('error', 'Failed to send message. Please try again.');
         }
       );
   };
@@ -35,35 +39,33 @@ const ContactForm: React.FC = () => {
         type="text"
         name="user_name"
         placeholder="Your Name"
-        className="p-3 rounded bg-white/10"
+        className="p-3 rounded bg-white/10 input-focus"
         required
       />
       <input
         type="email"
         name="user_email"
         placeholder="Your Email"
-        className="p-3 rounded bg-white/10"
+        className="p-3 rounded bg-white/10 input-focus"
         required
       />
       <input
         type="text"
         name="subject"
         placeholder="Subject"
-        className="p-3 rounded bg-white/10"
+        className="p-3 rounded bg-white/10 input-focus"
         required
       />
       <textarea
         name="message"
         rows={5}
         placeholder="Your Message"
-        className="p-3 rounded bg-white/10"
+        className="p-3 rounded bg-white/10 input-focus resize-none"
         required
       />
-      <button type="submit" className="btn-primary">
+      <button type="submit" className="btn-primary" disabled={status === 'sending'}>
         {status === 'sending' ? 'Sending...' : 'Send Message'}
       </button>
-      {status === 'sent' && <p className="text-green-400 text-sm">Message sent successfully!</p>}
-      {status === 'error' && <p className="text-red-400 text-sm">Failed to send message. Try again.</p>}
     </form>
   );
 };

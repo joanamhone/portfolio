@@ -4,6 +4,10 @@ import { Link } from 'react-router-dom';
 import { Calendar, User, MessageCircle, ChevronLeft, Search, Filter, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase, BlogPost, Category, isSupabaseConfigured, searchPosts, getAllCategories } from '../lib/supabase';
+import { BlogSkeleton } from '../components/Skeleton';
+import SubscriptionPopup from '../components/SubscriptionPopup';
+import { useSubscriptionPopup } from '../hooks/useSubscriptionPopup';
+import SEO from '../components/SEO';
 
 const Blog: React.FC = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -13,6 +17,7 @@ const Blog: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
+  const { showPopup, closePopup } = useSubscriptionPopup();
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
@@ -140,9 +145,32 @@ const Blog: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen pt-20 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
-      </div>
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+        className="min-h-screen pt-20"
+      >
+        <header className="py-20 px-4 sm:px-6 lg:px-8">
+          <div className="container mx-auto">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 gradient-text">Tech Insights Blog</h1>
+            <p className="text-lg text-white/80 max-w-2xl">
+              Exploring the latest in cybersecurity, software engineering, and technology trends.
+            </p>
+          </div>
+        </header>
+        <section className="py-8 mb-8 px-4 sm:px-6 lg:px-8">
+          <div className="container mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 space-y-8">
+                <BlogSkeleton />
+                <BlogSkeleton />
+                <BlogSkeleton />
+              </div>
+            </div>
+          </div>
+        </section>
+      </motion.div>
     );
   }
 
@@ -153,6 +181,10 @@ const Blog: React.FC = () => {
       variants={containerVariants}
       className="min-h-screen pt-20"
     >
+      <SEO
+        title="Tech Insights Blog"
+        description="Exploring the latest in cybersecurity, software engineering, and technology trends. Read expert insights and tutorials."
+      />
       {/* Header */}
       <header className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
@@ -389,6 +421,9 @@ const Blog: React.FC = () => {
           </div>
         </div>
       </motion.div>
+
+      {/* Subscription Popup */}
+      <SubscriptionPopup isOpen={showPopup} onClose={closePopup} />
     </motion.div>
   );
 };

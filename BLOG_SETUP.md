@@ -84,6 +84,19 @@ CREATE TABLE comment_likes (
   UNIQUE(comment_id, user_email, user_ip)
 );
 
+-- Analytics table
+CREATE TABLE analytics (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  post_id UUID REFERENCES blog_posts(id) ON DELETE CASCADE,
+  event_type VARCHAR(50) NOT NULL,
+  user_ip VARCHAR(45),
+  user_agent TEXT,
+  referrer TEXT,
+  session_id VARCHAR(100) NOT NULL,
+  metadata JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Subscribers table
 CREATE TABLE subscribers (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -100,6 +113,7 @@ ALTER TABLE post_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comment_likes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subscribers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE analytics ENABLE ROW LEVEL SECURITY;
 
 -- Public read policies
 CREATE POLICY "Public can read published posts" ON blog_posts FOR SELECT USING (published = true);
@@ -112,6 +126,7 @@ CREATE POLICY "Public can read comment likes" ON comment_likes FOR SELECT USING 
 CREATE POLICY "Anyone can insert comments" ON comments FOR INSERT WITH CHECK (true);
 CREATE POLICY "Anyone can insert comment likes" ON comment_likes FOR INSERT WITH CHECK (true);
 CREATE POLICY "Anyone can subscribe" ON subscribers FOR INSERT WITH CHECK (true);
+CREATE POLICY "Anyone can insert analytics" ON analytics FOR INSERT WITH CHECK (true);
 
 -- Admin policies (you'll need to set up authentication)
 -- For now, these allow all operations for authenticated users

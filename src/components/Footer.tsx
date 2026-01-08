@@ -1,18 +1,31 @@
 import React from 'react';
 import { Github, Linkedin} from 'lucide-react';
+import NewsletterSubscription from './NewsletterSubscription';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-secondary/80 backdrop-blur-sm py-8">
+    <footer className="bg-secondary/80 backdrop-blur-sm py-12">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="mb-4 md:mb-0">
-            <p className="text-white/70 text-sm">&copy; {new Date().getFullYear()} Joana Promise Mhone. All rights reserved.</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div>
+            <h3 className="text-white font-semibold text-lg mb-4">Joana Promise Mhone</h3>
+            <p className="text-white/70 text-sm mb-4">
+              Cybersecurity professional and software developer passionate about creating secure, innovative solutions.
+            </p>
+            <div className="flex space-x-4">
+              <SocialLink href="https://github.com/joanamhone" icon={<Github size={18} />} label="GitHub" />
+              <SocialLink href="https://www.linkedin.com/in/joana-mhone-46a03b1b6" icon={<Linkedin size={18} />} label="LinkedIn" />
+            </div>
           </div>
           
-          <div className="flex space-x-4">
-            <SocialLink href="https://github.com/joanamhone" icon={<Github size={18} />} label="GitHub" />
-            <SocialLink href="https://www.linkedin.com/in/joana-mhone-46a03b1b6" icon={<Linkedin size={18} />} label="LinkedIn" />
+          <div className="flex justify-center md:justify-end">
+            <NewsletterSubscription />
+          </div>
+        </div>
+        
+        <div className="border-t border-white/20 pt-6">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <p className="text-white/70 text-sm">&copy; {new Date().getFullYear()} Joana Promise Mhone. All rights reserved.</p>
           </div>
         </div>
       </div>

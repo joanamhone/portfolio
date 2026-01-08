@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Shield, Code, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import SEO from '../components/SEO';
 
 const Home: React.FC = () => {
   return (
@@ -12,6 +13,7 @@ const Home: React.FC = () => {
       transition={{ duration: 0.5 }}
       className="min-h-screen flex flex-col"
     >
+      <SEO />
       {/* Hero Section */}
       <section className="py-20 md:py-32 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto text-center">

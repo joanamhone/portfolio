@@ -6,6 +6,12 @@ import { format } from 'date-fns';
 import { useForm } from 'react-hook-form';
 import { supabase, BlogPost, Comment, isSupabaseConfigured, getPostWithCategories, getCommentsWithReplies, likeComment, getUserCommentLikes } from '../lib/supabase';
 import CommentItem from '../components/CommentItem';
+import SubscriptionPopup from '../components/SubscriptionPopup';
+import { useSubscriptionPopup } from '../hooks/useSubscriptionPopup';
+import SEO from '../components/SEO';
+import SocialShare from '../components/SocialShare';
+import RelatedPosts from '../components/RelatedPosts';
+import { calculateReadingTime } from '../lib/utils';
 
 interface CommentForm {
   author_name: string;
@@ -25,6 +31,8 @@ const BlogPostPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showSubscribeModal, setShowSubscribeModal] = useState(false);
+  const { showPopup, closePopup } = useSubscriptionPopup();
+  const readingTime = post ? calculateReadingTime(post.content) : 0;
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<CommentForm>();
 
@@ -208,6 +216,15 @@ const BlogPostPage: React.FC = () => {
       animate={{ opacity: 1 }}
       className="min-h-screen pt-20 px-4 sm:px-6 lg:px-8"
     >
+      <SEO
+        title={post?.title}
+        description={post?.excerpt || post?.content.replace(/<[^>]*>/g, '').substring(0, 160)}
+        image={post?.featured_image}
+        type="article"
+        publishedTime={post?.created_at}
+        modifiedTime={post?.updated_at}
+        tags={post?.categories?.map(c => c.name)}
+      />
       <div className="container mx-auto py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Content */}
@@ -241,6 +258,8 @@ const BlogPostPage: React.FC = () => {
                   <User size={14} />
                   <span>Admin</span>
                 </div>
+                <div className="text-white/40">•</div>
+                <span>{readingTime} min read</span>
               </div>
 
               <h1 className="text-3xl md:text-4xl font-bold mb-8 gradient-text">
@@ -267,9 +286,18 @@ const BlogPostPage: React.FC = () => {
               )}
 
               <div 
-                className="prose prose-invert max-w-none mb-12"
+                className="prose prose-invert max-w-none mb-8"
                 dangerouslySetInnerHTML={{ __html: post.content }}
               />
+
+              {/* Social Share */}
+              <div className="border-t border-white/20 pt-6 mb-8">
+                <SocialShare
+                  url={window.location.href}
+                  title={post.title}
+                  description={post.excerpt || post.content.replace(/<[^>]*>/g, '').substring(0, 160)}
+                />
+              </div>
             </motion.div>
 
             {/* Comments Section */}
@@ -383,6 +411,12 @@ const BlogPostPage: React.FC = () => {
 
           {/* Sidebar */}
           <aside className="space-y-6">
+            {/* Related Posts */}
+            <RelatedPosts 
+              currentPostId={post.id}
+              categories={post.categories?.map(c => c.id)}
+            />
+
             {/* Ad Space */}
             <div className="card">
               <div className="bg-secondary-light/50 border border-white/10 rounded-lg p-8 text-center">
@@ -410,6 +444,9 @@ const BlogPostPage: React.FC = () => {
           </aside>
         </div>
       </div>
+
+      {/* Subscription Popup */}
+      <SubscriptionPopup isOpen={showPopup} onClose={closePopup} />
 
       {/* Subscribe Modal */}
       {showSubscribeModal && (

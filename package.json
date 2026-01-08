@@ -12,11 +12,16 @@
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
     "@supabase/supabase-js": "^2.39.0",
+    "cors": "^2.8.5",
     "date-fns": "^3.0.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
     "framer-motion": "^11.0.3",
     "lucide-react": "^0.344.0",
+    "nodemon": "^3.1.11",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-helmet-async": "^2.0.5",
     "react-hook-form": "^7.48.0",
     "react-quill": "^2.0.0",
     "react-router-dom": "^6.22.0"

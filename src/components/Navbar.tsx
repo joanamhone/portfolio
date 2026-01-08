@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Home, Shield, Code, BookOpen } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, Home, Shield, Code, BookOpen, Search } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,6 +27,16 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     setIsOpen(false);
   }, [location]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+      setShowSearch(false);
+      setIsOpen(false);
+    }
+  };
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -57,6 +70,14 @@ const Navbar: React.FC = () => {
           <NavLink to="/cybersecurity" icon={<Shield size={16} />} label="Cybersecurity" />
           <NavLink to="/software" icon={<Code size={16} />} label="Software" />
           <NavLink to="/blog" icon={<BookOpen size={16} />} label="Blog" />
+          
+          <button
+            onClick={() => setShowSearch(!showSearch)}
+            className="p-2 text-white/70 hover:text-accent transition-colors"
+            title="Search"
+          >
+            <Search size={18} />
+          </button>
         </div>
 
         {/* Mobile Navigation Toggle */}
@@ -83,9 +104,58 @@ const Navbar: React.FC = () => {
             <MobileNavLink to="/cybersecurity" icon={<Shield size={18} />} label="Cybersecurity" />
             <MobileNavLink to="/software" icon={<Code size={18} />} label="Software" />
             <MobileNavLink to="/blog" icon={<BookOpen size={18} />} label="Blog" />
+            
+            <div className="pt-2 border-t border-white/20">
+              <form onSubmit={handleSearch} className="flex">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search..."
+                  className="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-l-md text-white placeholder-white/50 focus:outline-none focus:border-accent"
+                />
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-accent hover:bg-accent-cyber text-white rounded-r-md transition-colors"
+                >
+                  <Search size={16} />
+                </button>
+              </form>
+            </div>
           </div>
         </motion.div>
       )}
+
+      {/* Desktop Search Bar */}
+      <AnimatePresence>
+        {showSearch && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="absolute top-full left-0 right-0 bg-secondary/95 backdrop-blur-sm border-b border-white/20 p-4"
+          >
+            <div className="container mx-auto px-4 md:px-6">
+              <form onSubmit={handleSearch} className="max-w-md mx-auto flex">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search posts..."
+                  className="flex-1 px-4 py-2 bg-white/10 border border-white/20 rounded-l-md text-white placeholder-white/50 focus:outline-none focus:border-accent"
+                  autoFocus
+                />
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-accent hover:bg-accent-cyber text-white rounded-r-md transition-colors"
+                >
+                  Search
+                </button>
+              </form>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 };
