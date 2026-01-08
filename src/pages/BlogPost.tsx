@@ -12,6 +12,7 @@ import SEO from '../components/SEO';
 import SocialShare from '../components/SocialShare';
 import RelatedPosts from '../components/RelatedPosts';
 import { calculateReadingTime } from '../lib/utils';
+import { trackPostView, trackCommentSubmit } from '../lib/analytics';
 
 interface CommentForm {
   author_name: string;
@@ -32,6 +33,7 @@ const BlogPostPage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [showSubscribeModal, setShowSubscribeModal] = useState(false);
   const { showPopup, closePopup } = useSubscriptionPopup();
+  const { showToast } = useToast();
   const readingTime = post ? calculateReadingTime(post.content) : 0;
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<CommentForm>();
@@ -65,6 +67,8 @@ const BlogPostPage: React.FC = () => {
     if (id) {
       fetchPost();
       fetchComments();
+      // Track post view
+      trackPostView(id);
     }
   }, [id]);
 
@@ -126,7 +130,7 @@ const BlogPostPage: React.FC = () => {
 
   const submitComment = async (data: CommentForm) => {
     if (!supabase) {
-      alert('Comments are not available without database configuration');
+      showToast('error', 'Comments are not available without database configuration');
       return;
     }
     
@@ -162,12 +166,16 @@ const BlogPostPage: React.FC = () => {
 
       reset();
       setReplyingTo(null);
-      alert('Comment submitted successfully! It will appear after approval.');
+      showToast('success', '🎉 Thanks for your comment! It will appear after approval.');
+      
+      // Track comment submission
+      trackCommentSubmit(id!);
+      
       fetchComments(); // Refresh comments
       fetchUserLikes(data.author_email);
     } catch (error) {
       console.error('Error submitting comment:', error);
-      alert('Error submitting comment. Please try again.');
+      showToast('error', 'Oops! Something went wrong. Please try again.');
     } finally {
       setSubmitting(false);
       setShowSubscribeModal(false);
