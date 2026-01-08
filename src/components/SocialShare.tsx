@@ -1,21 +1,25 @@
 import React from 'react';
 import { Share2, Twitter, Facebook, Linkedin, Mail, MessageCircle } from 'lucide-react';
 import { shareUrls } from '../lib/utils';
+import { trackSocialShare } from '../lib/analytics';
 
 interface SocialShareProps {
   url: string;
   title: string;
   description: string;
+  postId?: string;
   className?: string;
 }
 
 const SocialShare: React.FC<SocialShareProps> = ({ 
   url, 
   title, 
-  description, 
+  description,
+  postId,
   className = '' 
 }) => {
-  const handleShare = (shareUrl: string) => {
+  const handleShare = (shareUrl: string, platform: string) => {
+    trackSocialShare(platform, postId);
     window.open(shareUrl, '_blank', 'width=600,height=400');
   };
 
@@ -27,6 +31,7 @@ const SocialShare: React.FC<SocialShareProps> = ({
           text: description,
           url
         });
+        trackSocialShare('native', postId);
       } catch (error) {
         console.log('Error sharing:', error);
       }
@@ -48,7 +53,7 @@ const SocialShare: React.FC<SocialShareProps> = ({
       )}
       
       <button
-        onClick={() => handleShare(shareUrls.twitter(url, title))}
+        onClick={() => handleShare(shareUrls.twitter(url, title), 'twitter')}
         className="p-2 bg-blue-500/20 hover:bg-blue-500/30 rounded-full transition-colors"
         title="Share on Twitter"
       >
@@ -56,7 +61,7 @@ const SocialShare: React.FC<SocialShareProps> = ({
       </button>
       
       <button
-        onClick={() => handleShare(shareUrls.facebook(url))}
+        onClick={() => handleShare(shareUrls.facebook(url), 'facebook')}
         className="p-2 bg-blue-600/20 hover:bg-blue-600/30 rounded-full transition-colors"
         title="Share on Facebook"
       >
@@ -64,7 +69,7 @@ const SocialShare: React.FC<SocialShareProps> = ({
       </button>
       
       <button
-        onClick={() => handleShare(shareUrls.linkedin(url, title, description))}
+        onClick={() => handleShare(shareUrls.linkedin(url, title, description), 'linkedin')}
         className="p-2 bg-blue-700/20 hover:bg-blue-700/30 rounded-full transition-colors"
         title="Share on LinkedIn"
       >
@@ -72,7 +77,7 @@ const SocialShare: React.FC<SocialShareProps> = ({
       </button>
       
       <button
-        onClick={() => handleShare(shareUrls.reddit(url, title))}
+        onClick={() => handleShare(shareUrls.reddit(url, title), 'reddit')}
         className="p-2 bg-orange-500/20 hover:bg-orange-500/30 rounded-full transition-colors"
         title="Share on Reddit"
       >
@@ -80,7 +85,10 @@ const SocialShare: React.FC<SocialShareProps> = ({
       </button>
       
       <button
-        onClick={() => window.location.href = shareUrls.email(url, title, description)}
+        onClick={() => {
+          trackSocialShare('email', postId);
+          window.location.href = shareUrls.email(url, title, description);
+        }}
         className="p-2 bg-gray-500/20 hover:bg-gray-500/30 rounded-full transition-colors"
         title="Share via Email"
       >

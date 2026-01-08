@@ -12,7 +12,7 @@ import SEO from '../components/SEO';
 import SocialShare from '../components/SocialShare';
 import RelatedPosts from '../components/RelatedPosts';
 import { calculateReadingTime } from '../lib/utils';
-import { trackPostView, trackCommentSubmit } from '../lib/analytics';
+import { trackPostView, trackCommentSubmit, trackTimeOnPage, trackScrollDepth, trackLinkClick } from '../lib/analytics';
 import { useToast } from '../components/Toast';
 
 interface CommentForm {
@@ -36,6 +36,54 @@ const BlogPostPage: React.FC = () => {
   const { showPopup, closePopup } = useSubscriptionPopup();
   const { showToast } = useToast();
   const readingTime = post ? calculateReadingTime(post.content) : 0;
+
+  // Scroll tracking
+  useEffect(() => {
+    if (!id) return;
+    
+    let maxScroll = 0;
+    const handleScroll = () => {
+      const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+      if (scrollPercent > maxScroll && scrollPercent % 25 === 0) { // Track at 25%, 50%, 75%, 100%
+        maxScroll = scrollPercent;
+        trackScrollDepth(id, scrollPercent);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [id]);
+
+  // Track time on page when leaving
+  useEffect(() => {
+    if (!id) return;
+    
+    const handleBeforeUnload = () => {
+      trackTimeOnPage(id);
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      trackTimeOnPage(id); // Track when component unmounts
+    };
+  }, [id]);
+
+  // Track link clicks
+  useEffect(() => {
+    if (!id) return;
+    
+    const handleLinkClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'A') {
+        const link = target as HTMLAnchorElement;
+        trackLinkClick(link.href, link.textContent || '', id);
+      }
+    };
+
+    document.addEventListener('click', handleLinkClick);
+    return () => document.removeEventListener('click', handleLinkClick);
+  }, [id]);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<CommentForm>();
 
@@ -305,6 +353,7 @@ const BlogPostPage: React.FC = () => {
                   url={window.location.href}
                   title={post.title}
                   description={post.excerpt || post.content.replace(/<[^>]*>/g, '').substring(0, 160)}
+                  postId={post.id}
                 />
               </div>
             </motion.div>
