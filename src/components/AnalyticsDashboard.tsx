@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, Eye, Heart, MessageCircle, Users, TrendingUp, Calendar } from 'lucide-react';
+import { BarChart3, Eye, Heart, MessageCircle, Users, TrendingUp, Calendar, Share2, MousePointer, Search, Clock, Target } from 'lucide-react';
 import { getOverallAnalytics, getPostAnalytics } from '../lib/analytics';
 import { BlogPost } from '../lib/supabase';
 
@@ -70,18 +70,32 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ posts }) => {
       bg: 'bg-green-100 dark:bg-green-900'
     },
     {
-      name: 'Total Likes',
-      value: analytics?.totalLikes || 0,
-      icon: Heart,
-      color: 'text-red-600 dark:text-red-400',
-      bg: 'bg-red-100 dark:bg-red-900'
+      name: 'Social Shares',
+      value: analytics?.totalShares || 0,
+      icon: Share2,
+      color: 'text-purple-600 dark:text-purple-400',
+      bg: 'bg-purple-100 dark:bg-purple-900'
+    },
+    {
+      name: 'Link Clicks',
+      value: analytics?.totalLinkClicks || 0,
+      icon: MousePointer,
+      color: 'text-orange-600 dark:text-orange-400',
+      bg: 'bg-orange-100 dark:bg-orange-900'
     },
     {
       name: 'Comments',
       value: analytics?.totalComments || 0,
       icon: MessageCircle,
-      color: 'text-purple-600 dark:text-purple-400',
-      bg: 'bg-purple-100 dark:bg-purple-900'
+      color: 'text-red-600 dark:text-red-400',
+      bg: 'bg-red-100 dark:bg-red-900'
+    },
+    {
+      name: 'Searches',
+      value: analytics?.totalSearches || 0,
+      icon: Search,
+      color: 'text-indigo-600 dark:text-indigo-400',
+      bg: 'bg-indigo-100 dark:bg-indigo-900'
     }
   ];
 
@@ -111,7 +125,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ posts }) => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
@@ -162,12 +176,16 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ posts }) => {
                         <span>{analytics?.views || 0}</span>
                       </div>
                       <div className="flex items-center text-gray-600 dark:text-gray-400">
-                        <Heart size={16} className="mr-1" />
-                        <span>{analytics?.likes || 0}</span>
+                        <Users size={16} className="mr-1" />
+                        <span>{analytics?.unique_views || 0}</span>
                       </div>
                       <div className="flex items-center text-gray-600 dark:text-gray-400">
-                        <MessageCircle size={16} className="mr-1" />
-                        <span>{analytics?.comments || 0}</span>
+                        <Share2 size={16} className="mr-1" />
+                        <span>{analytics?.shares || 0}</span>
+                      </div>
+                      <div className="flex items-center text-gray-600 dark:text-gray-400">
+                        <Clock size={16} className="mr-1" />
+                        <span>{analytics?.avg_time_on_page || 0}s</span>
                       </div>
                     </div>
                   </div>
@@ -179,33 +197,65 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ posts }) => {
       </div>
 
       {/* Recent Activity */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white">Recent Activity</h3>
-        </div>
-        <div className="p-6">
-          {analytics?.recentActivity?.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500 dark:text-gray-400">No recent activity</p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Top Referrers */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center">
+              <Target size={20} className="text-gray-400 mr-2" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">Top Traffic Sources</h3>
             </div>
-          ) : (
-            <div className="space-y-3">
-              {analytics?.recentActivity?.map((activity: any, index: number) => (
-                <div key={index} className="flex items-center justify-between py-2">
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                    <span className="text-sm text-gray-900 dark:text-white">
-                      {activity.event_type.replace('_', ' ')} 
-                      {activity.post_id && ' on post'}
+          </div>
+          <div className="p-6">
+            {!analytics?.topReferrers || analytics.topReferrers.length === 0 ? (
+              <p className="text-gray-500 dark:text-gray-400 text-center py-4">No referrer data yet</p>
+            ) : (
+              <div className="space-y-3">
+                {analytics.topReferrers.map(([domain, count]: [string, number], index: number) => (
+                  <div key={domain} className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-3">
+                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400">{index + 1}</span>
+                      </div>
+                      <span className="text-sm text-gray-900 dark:text-white">{domain}</span>
+                    </div>
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">{count} visits</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Recent Activity */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Recent Activity</h3>
+          </div>
+          <div className="p-6">
+            {analytics?.recentActivity?.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500 dark:text-gray-400">No recent activity</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {analytics?.recentActivity?.slice(0, 10).map((activity: any, index: number) => (
+                  <div key={index} className="flex items-center justify-between py-2">
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                      <span className="text-sm text-gray-900 dark:text-white">
+                        {activity.event_type.replace('_', ' ')} 
+                        {activity.post_id && ' on post'}
+                      </span>
+                    </div>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      {new Date(activity.created_at).toLocaleString()}
                     </span>
                   </div>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {new Date(activity.created_at).toLocaleString()}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
