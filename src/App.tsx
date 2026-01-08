@@ -4,7 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 import { HelmetProvider } from 'react-helmet-async';
 import { ToastProvider } from './components/Toast';
 
-// Pages
+// Pages what
 import Home from './pages/Home';
 import CyberSecurityPortfolio from './pages/CyberSecurityPortfolio';
 import SoftwarePortfolio from './pages/SoftwarePortfolio';
