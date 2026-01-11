@@ -340,7 +340,7 @@ const BlogPostPage: React.FC = () => {
                 <span>{readingTime} min read</span>
               </div>
 
-              <section className="py-12 bg-secondary/30 rounded-lg px-8 mb-8">
+              <section className="py-12 bg-secondary/50 rounded-lg px-8 mb-8">
                 <h1 className="text-3xl md:text-4xl font-bold mb-8 gradient-text">
                   {post.title}
                 </h1>
