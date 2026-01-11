@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BarChart3, Eye, Heart, MessageCircle, Users, TrendingUp, Calendar, Share2, MousePointer, Search, Clock, Target } from 'lucide-react';
 import { getOverallAnalytics, getPostAnalytics } from '../lib/analytics';
 import { BlogPost } from '../lib/supabase';
+import AnalyticsChart from './AnalyticsChart';
 
 interface AnalyticsDashboardProps {
   posts: BlogPost[];
@@ -18,22 +19,27 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ posts }) => {
   }, [posts]);
 
   const fetchAnalytics = async () => {
+    console.log('🔍 Starting analytics fetch...');
     setLoading(true);
     try {
       const overall = await getOverallAnalytics();
+      console.log('📊 Overall analytics result:', overall);
       setAnalytics(overall);
 
       // Fetch analytics for each post
       const postAnalyticsData: Record<string, any> = {};
       for (const post of posts.slice(0, 10)) { // Limit to top 10 posts
+        console.log('📝 Fetching analytics for post:', post.id);
         const postData = await getPostAnalytics(post.id);
+        console.log('📈 Post analytics result:', postData);
         if (postData) {
           postAnalyticsData[post.id] = postData;
         }
       }
+      console.log('📊 All post analytics:', postAnalyticsData);
       setPostAnalytics(postAnalyticsData);
     } catch (error) {
-      console.error('Error fetching analytics:', error);
+      console.error('❌ Error fetching analytics:', error);
     } finally {
       setLoading(false);
     }
@@ -144,6 +150,9 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ posts }) => {
         })}
       </div>
 
+      {/* Analytics Chart */}
+      <AnalyticsChart data={analytics?.recentActivity || []} timeRange={timeRange} />
+
       {/* Top Performing Posts */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
@@ -239,7 +248,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ posts }) => {
               </div>
             ) : (
               <div className="space-y-3">
-                {analytics?.recentActivity?.slice(0, 10).map((activity: any, index: number) => (
+                {analytics?.recentActivity?.slice(0, 5).map((activity: any, index: number) => (
                   <div key={index} className="flex items-center justify-between py-2">
                     <div className="flex items-center">
                       <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>

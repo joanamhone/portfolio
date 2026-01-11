@@ -58,20 +58,32 @@ export const trackPageView = async (path: string) => {
 
 // Track post view with time tracking
 export const trackPostView = async (postId: string) => {
-  if (!supabase) return;
+  if (!supabase) {
+    console.log('❌ Supabase not available for tracking');
+    return;
+  }
   
   const startTime = Date.now();
   sessionStorage.setItem(`post_start_${postId}`, startTime.toString());
   
+  console.log('📊 Tracking post view for:', postId);
+  
   try {
-    await supabase.from('analytics').insert({
+    const { data, error } = await supabase.from('analytics').insert({
       post_id: postId,
       event_type: 'post_view',
       ...getUserInfo(),
       metadata: { start_time: startTime }
     });
+    
+    if (error) {
+      console.error('❌ Analytics insert error:', error);
+      throw error;
+    }
+    
+    console.log('✅ Post view tracked successfully:', data);
   } catch (error) {
-    console.error('Analytics tracking error:', error);
+    console.error('❌ Analytics tracking error:', error);
   }
 };
 
@@ -258,24 +270,29 @@ export const getOverallAnalytics = async () => {
       .order('created_at', { ascending: false });
     
     if (error) throw error;
+    if (!data || data.length === 0) return null;
     
-    const totalViews = data?.filter(d => d.event_type === 'page_view').length || 0;
-    const totalPostViews = data?.filter(d => d.event_type === 'post_view').length || 0;
-    const totalLikes = data?.filter(d => d.event_type === 'post_like').length || 0;
-    const totalComments = data?.filter(d => d.event_type === 'comment_submit').length || 0;
-    const totalShares = data?.filter(d => d.event_type === 'social_share').length || 0;
-    const totalSignups = data?.filter(d => d.event_type === 'newsletter_signup').length || 0;
-    const totalLinkClicks = data?.filter(d => d.event_type === 'link_click').length || 0;
-    const totalSearches = data?.filter(d => d.event_type === 'search').length || 0;
+    const totalViews = data.filter(d => d.event_type === 'post_view').length;
+    const totalPostViews = data.filter(d => d.event_type === 'post_view').length;
+    const totalLikes = data.filter(d => d.event_type === 'post_like').length;
+    const totalComments = data.filter(d => d.event_type === 'comment_submit').length;
+    const totalShares = data.filter(d => d.event_type === 'social_share').length;
+    const totalSignups = data.filter(d => d.event_type === 'newsletter_signup').length;
+    const totalLinkClicks = data.filter(d => d.event_type === 'link_click').length;
+    const totalSearches = data.filter(d => d.event_type === 'search').length;
     
     // Get unique sessions for visitor count
-    const uniqueSessions = new Set(data?.map(d => d.session_id)).size;
+    const uniqueSessions = new Set(data.map(d => d.session_id)).size;
     
     // Get top referrers
-    const referrers = data?.filter(d => d.referrer && d.referrer !== '')
+    const referrers = data.filter(d => d.referrer && d.referrer !== '')
       .reduce((acc: any, d) => {
-        const domain = new URL(d.referrer).hostname;
-        acc[domain] = (acc[domain] || 0) + 1;
+        try {
+          const domain = new URL(d.referrer).hostname;
+          acc[domain] = (acc[domain] || 0) + 1;
+        } catch {
+          acc[d.referrer] = (acc[d.referrer] || 0) + 1;
+        }
         return acc;
       }, {});
     
@@ -284,9 +301,9 @@ export const getOverallAnalytics = async () => {
       .slice(0, 5);
     
     // Get popular search terms
-    const searches = data?.filter(d => d.event_type === 'search' && d.metadata?.query)
+    const searches = data.filter(d => d.event_type === 'search' && d.metadata?.query)
       .reduce((acc: any, d) => {
-        const query = d.metadata.query.toLowerCase();
+        const query = JSON.parse(d.metadata).query.toLowerCase();
         acc[query] = (acc[query] || 0) + 1;
         return acc;
       }, {});
@@ -307,7 +324,7 @@ export const getOverallAnalytics = async () => {
       uniqueVisitors: uniqueSessions,
       topReferrers,
       topSearches,
-      recentActivity: data?.slice(0, 20) || []
+      recentActivity: data.slice(0, 5)
     };
   } catch (error) {
     console.error('Error fetching analytics:', error);

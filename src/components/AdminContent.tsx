@@ -2,20 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Edit, Trash2, Eye, EyeOff, MessageCircle, Users, BarChart3, Mail } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
 import { supabase, BlogPost, Comment, Subscriber, Category, getAllCategories } from '../lib/supabase';
 import AnalyticsDashboard from './AnalyticsDashboard';
 import SubscribersManager from './SubscribersManager';
 import NewsletterComposer from './NewsletterComposer';
 import CommentsManager from './CommentsManager';
 import CategoriesManager from './CategoriesManager';
+import EnhancedBlogEditor from './EnhancedBlogEditor';
+
+interface BlogImage {
+  id: string;
+  url: string;
+  alt: string;
+  position: 'top' | 'middle' | 'bottom' | 'inline';
+}
 
 interface PostForm {
   title: string;
   content: string;
   excerpt: string;
   featured_image: string;
+  images: BlogImage[];
   published: boolean;
   category_ids: string[];
 }
@@ -47,6 +54,12 @@ const AdminContent: React.FC<AdminContentProps> = ({ onLogout }) => {
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Blog editor state
+  const [blogTitle, setBlogTitle] = useState('');
+  const [blogContent, setBlogContent] = useState('');
+  const [blogExcerpt, setBlogExcerpt] = useState('');
+  const [blogImages, setBlogImages] = useState<BlogImage[]>([]);
+
   // Persist active tab in localStorage
   useEffect(() => {
     const savedTab = localStorage.getItem('adminActiveTab') as typeof activeTab;
@@ -60,9 +73,7 @@ const AdminContent: React.FC<AdminContentProps> = ({ onLogout }) => {
     localStorage.setItem('adminActiveTab', tab);
   };
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<PostForm>();
   const { register: registerCategory, handleSubmit: handleSubmitCategory, reset: resetCategory, setValue: setValueCategory, formState: { errors: categoryErrors } } = useForm<CategoryForm>();
-  const [content, setContent] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   useEffect(() => {
@@ -136,7 +147,7 @@ const AdminContent: React.FC<AdminContentProps> = ({ onLogout }) => {
     }
   };
 
-  const onSubmitPost = async (data: PostForm) => {
+  const onSubmitPost = async () => {
     if (!supabase) {
       alert('Database not configured');
       return;
@@ -144,11 +155,12 @@ const AdminContent: React.FC<AdminContentProps> = ({ onLogout }) => {
     
     try {
       const postData = { 
-        title: data.title,
-        content,
-        excerpt: data.excerpt,
-        featured_image: data.featured_image,
-        published: data.published
+        title: blogTitle,
+        content: blogContent,
+        excerpt: blogExcerpt,
+        featured_image: blogImages.find(img => img.position === 'top')?.url || '',
+        images: JSON.stringify(blogImages),
+        published: false // Always save as draft initially
       };
       
       let postId: string;
@@ -179,11 +191,7 @@ const AdminContent: React.FC<AdminContentProps> = ({ onLogout }) => {
         await supabase.from('post_categories').insert(categoryInserts);
       }
 
-      reset();
-      setContent('');
-      setSelectedCategories([]);
-      setEditingPost(null);
-      setShowPostForm(false);
+      resetBlogEditor();
       fetchData();
     } catch (error) {
       console.error('Error saving post:', error);
@@ -211,14 +219,31 @@ const AdminContent: React.FC<AdminContentProps> = ({ onLogout }) => {
     }
   };
 
+  const resetBlogEditor = () => {
+    setBlogTitle('');
+    setBlogContent('');
+    setBlogExcerpt('');
+    setBlogImages([]);
+    setSelectedCategories([]);
+    setEditingPost(null);
+    setShowPostForm(false);
+  };
+
   const editPost = (post: BlogPost) => {
     setEditingPost(post);
-    setValue('title', post.title);
-    setValue('excerpt', post.excerpt || '');
-    setValue('featured_image', post.featured_image || '');
-    setValue('published', post.published);
+    setBlogTitle(post.title);
+    setBlogContent(post.content);
+    setBlogExcerpt(post.excerpt || '');
+    
+    // Parse images from JSON if they exist
+    try {
+      const parsedImages = post.images ? JSON.parse(post.images) : [];
+      setBlogImages(parsedImages);
+    } catch {
+      setBlogImages([]);
+    }
+    
     setSelectedCategories(post.categories?.map(c => c.id) || []);
-    setContent(post.content);
     setShowPostForm(true);
   };
 
@@ -369,8 +394,7 @@ const AdminContent: React.FC<AdminContentProps> = ({ onLogout }) => {
                   onClick={() => {
                     if (activeTab === 'posts') {
                       setEditingPost(null);
-                      reset();
-                      setContent('');
+                      resetBlogEditor();
                       setShowPostForm(true);
                     } else {
                       setEditingCategory(null);
@@ -418,129 +442,19 @@ const AdminContent: React.FC<AdminContentProps> = ({ onLogout }) => {
             {activeTab === 'posts' && (
               <div className="p-6">
                 {showPostForm ? (
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-4">
-                      <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                        {editingPost ? 'Edit Post' : 'Create New Post'}
-                      </h3>
-                      <button
-                        onClick={() => {
-                          setShowPostForm(false);
-                          setEditingPost(null);
-                          reset();
-                          setContent('');
-                        }}
-                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                      >
-                        ×
-                      </button>
-                    </div>
-                    
-                    <form onSubmit={handleSubmit(onSubmitPost)} className="space-y-6">
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div className="lg:col-span-2 space-y-6">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                              Title
-                            </label>
-                            <input
-                              {...register('title', { required: 'Title is required' })}
-                              type="text"
-                              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                            {errors.title && (
-                              <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
-                            )}
-                          </div>
-                          
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                              Content
-                            </label>
-                            <div className="bg-white rounded-md" style={{ minHeight: '500px' }}>
-                              <style>
-                                {`
-                                  .ql-editor {
-                                    color: #000 !important;
-                                    font-size: 14px;
-                                    line-height: 1.6;
-                                  }
-                                  .ql-editor p, .ql-editor h1, .ql-editor h2, .ql-editor h3 {
-                                    color: #000 !important;
-                                  }
-                                `}
-                              </style>
-                              <ReactQuill
-                                theme="snow"
-                                value={content}
-                                onChange={setContent}
-                                modules={modules}
-                                style={{ minHeight: '450px' }}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-6">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                              Excerpt
-                            </label>
-                            <textarea
-                              {...register('excerpt')}
-                              rows={3}
-                              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                              Featured Image URL
-                            </label>
-                            <input
-                              {...register('featured_image')}
-                              type="url"
-                              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="flex items-center space-x-2">
-                              <input
-                                {...register('published')}
-                                type="checkbox"
-                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                              />
-                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Publish immediately
-                              </span>
-                            </label>
-                          </div>
-                          
-                          <div className="flex space-x-3">
-                            <button
-                              type="submit"
-                              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                            >
-                              {editingPost ? 'Update' : 'Create'}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setShowPostForm(false);
-                                setEditingPost(null);
-                                reset();
-                                setContent('');
-                              }}
-                              className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
+                  <EnhancedBlogEditor
+                    title={blogTitle}
+                    content={blogContent}
+                    excerpt={blogExcerpt}
+                    images={blogImages}
+                    onTitleChange={setBlogTitle}
+                    onContentChange={setBlogContent}
+                    onExcerptChange={setBlogExcerpt}
+                    onImagesChange={setBlogImages}
+                    onSave={onSubmitPost}
+                    onCancel={resetBlogEditor}
+                    isEditing={!!editingPost}
+                  />
                 ) : (
                   <div className="space-y-4">
                     {filteredPosts.length === 0 ? (
