@@ -27,6 +27,7 @@ const BlogPostPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
+  const [blogImages, setBlogImages] = useState<any[]>([]);
   const [userLikes, setUserLikes] = useState<Record<string, boolean>>({});
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [userIp, setUserIp] = useState<string>('');
@@ -134,6 +135,14 @@ const BlogPostPage: React.FC = () => {
       };
       
       setPost(transformedPost);
+      
+      // Parse images if they exist
+      try {
+        const parsedImages = data.images ? JSON.parse(data.images) : [];
+        setBlogImages(parsedImages);
+      } catch {
+        setBlogImages([]);
+      }
     } catch (error) {
       console.error('Error fetching post:', error);
     }
@@ -296,7 +305,19 @@ const BlogPostPage: React.FC = () => {
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              {post.featured_image && (
+              {/* Top Images */}
+              {blogImages.filter(img => img.position === 'top').map(img => (
+                <div key={img.id} className="mb-8 rounded-lg overflow-hidden">
+                  <img 
+                    src={img.url} 
+                    alt={img.alt}
+                    className="w-full h-64 md:h-96 object-cover"
+                  />
+                </div>
+              ))}
+              
+              {/* Fallback to featured_image if no top images */}
+              {blogImages.filter(img => img.position === 'top').length === 0 && post.featured_image && (
                 <div className="mb-8 rounded-lg overflow-hidden">
                   <img 
                     src={post.featured_image} 
@@ -342,10 +363,32 @@ const BlogPostPage: React.FC = () => {
                 </div>
               )}
 
+              {/* Middle Images */}
+              {blogImages.filter(img => img.position === 'middle').map(img => (
+                <div key={img.id} className="mb-8 rounded-lg overflow-hidden">
+                  <img 
+                    src={img.url} 
+                    alt={img.alt}
+                    className="w-full h-64 object-cover"
+                  />
+                </div>
+              ))}
+
               <div 
                 className="prose prose-invert max-w-none mb-8"
                 dangerouslySetInnerHTML={{ __html: post.content }}
               />
+
+              {/* Bottom Images */}
+              {blogImages.filter(img => img.position === 'bottom').map(img => (
+                <div key={img.id} className="mb-8 rounded-lg overflow-hidden">
+                  <img 
+                    src={img.url} 
+                    alt={img.alt}
+                    className="w-full h-64 object-cover"
+                  />
+                </div>
+              ))}
 
               {/* Social Share */}
               <div className="border-t border-white/20 pt-6 mb-8">
