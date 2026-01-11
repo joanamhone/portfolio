@@ -340,55 +340,57 @@ const BlogPostPage: React.FC = () => {
                 <span>{readingTime} min read</span>
               </div>
 
-              <h1 className="text-3xl md:text-4xl font-bold mb-8 gradient-text">
-                {post.title}
-              </h1>
+              <section className="py-12 bg-secondary/30 rounded-lg px-8 mb-8">
+                <h1 className="text-3xl md:text-4xl font-bold mb-8 gradient-text">
+                  {post.title}
+                </h1>
 
-              {/* Categories */}
-              {post.categories && post.categories.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-8">
-                  {post.categories.map((category) => (
-                    <span
-                      key={category.id}
-                      className="px-3 py-1 text-sm rounded-full border"
-                      style={{
-                        backgroundColor: `${category.color}20`,
-                        borderColor: `${category.color}50`,
-                        color: category.color
-                      }}
-                    >
-                      {category.name}
-                    </span>
-                  ))}
-                </div>
-              )}
+                {/* Categories */}
+                {post.categories && post.categories.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-8">
+                    {post.categories.map((category) => (
+                      <span
+                        key={category.id}
+                        className="px-3 py-1 text-sm rounded-full border"
+                        style={{
+                          backgroundColor: `${category.color}20`,
+                          borderColor: `${category.color}50`,
+                          color: category.color
+                        }}
+                      >
+                        {category.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
-              {/* Middle Images */}
-              {blogImages.filter(img => img.position === 'middle').map(img => (
-                <div key={img.id} className="mb-8 rounded-lg overflow-hidden">
-                  <img 
-                    src={img.url} 
-                    alt={img.alt}
-                    className="w-full h-64 object-cover"
-                  />
-                </div>
-              ))}
+                {/* Middle Images */}
+                {blogImages.filter(img => img.position === 'middle').map(img => (
+                  <div key={img.id} className="mb-8 rounded-lg overflow-hidden">
+                    <img 
+                      src={img.url} 
+                      alt={img.alt}
+                      className="w-full h-64 object-cover"
+                    />
+                  </div>
+                ))}
 
-              <div 
-                className="prose prose-invert max-w-none mb-8"
-                dangerouslySetInnerHTML={{ __html: post.content }}
-              />
+                <div 
+                  className="prose prose-invert max-w-none mb-8"
+                  dangerouslySetInnerHTML={{ __html: post.content }}
+                />
 
-              {/* Bottom Images */}
-              {blogImages.filter(img => img.position === 'bottom').map(img => (
-                <div key={img.id} className="mb-8 rounded-lg overflow-hidden">
-                  <img 
-                    src={img.url} 
-                    alt={img.alt}
-                    className="w-full h-64 object-cover"
-                  />
-                </div>
-              ))}
+                {/* Bottom Images */}
+                {blogImages.filter(img => img.position === 'bottom').map(img => (
+                  <div key={img.id} className="mb-8 rounded-lg overflow-hidden">
+                    <img 
+                      src={img.url} 
+                      alt={img.alt}
+                      className="w-full h-64 object-cover"
+                    />
+                  </div>
+                ))}
+              </section>
 
               {/* Social Share */}
               <div className="border-t border-white/20 pt-6 mb-8">
