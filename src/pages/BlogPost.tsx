@@ -15,6 +15,7 @@ import { calculateReadingTime } from '../lib/utils';
 import { trackPostView, trackCommentSubmit, trackTimeOnPage, trackScrollDepth, trackLinkClick } from '../lib/analytics';
 import { useToast } from '../components/Toast';
 import PostLikeButton from '../components/PostLikeButton';
+import { generateStructuredData } from '../hooks/useAutoSEO';
 
 interface CommentForm {
   author_name: string;
@@ -291,6 +292,14 @@ const BlogPostPage: React.FC = () => {
         publishedTime={post?.created_at}
         modifiedTime={post?.updated_at}
         tags={post?.categories?.map(c => c.name)}
+      />
+      
+      {/* Structured Data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(generateStructuredData(post))
+        }}
       />
       
       {/* Additional SEO meta tags */}

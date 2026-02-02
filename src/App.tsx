@@ -13,6 +13,7 @@ import BlogPost from './pages/BlogPost';
 import SearchPage from './pages/SearchPage';
 import AdminPanel from './pages/AdminPanel';
 import UnsubscribePage from './pages/UnsubscribePage';
+import SitemapRoute from './pages/SitemapRoute';
 
 // Components
 import Layout from './components/Layout';
@@ -33,6 +34,7 @@ const AnimatedRoutes = () => {
         <Route path="/search" element={<SearchPage />} />
         <Route path="/unsubscribe/:token" element={<UnsubscribePage />} />
         <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/sitemap.xml" element={<SitemapRoute />} />
       </Routes>
     </AnimatePresence>
   );

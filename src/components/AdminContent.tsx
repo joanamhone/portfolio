@@ -9,6 +9,7 @@ import NewsletterComposer from './NewsletterComposer';
 import CommentsManager from './CommentsManager';
 import CategoriesManager from './CategoriesManager';
 import EnhancedBlogEditor from './EnhancedBlogEditor';
+import { useAutoSEO } from '../hooks/useAutoSEO';
 
 interface BlogImage {
   id: string;
@@ -59,6 +60,9 @@ const AdminContent: React.FC<AdminContentProps> = ({ onLogout }) => {
   const [blogContent, setBlogContent] = useState('');
   const [blogExcerpt, setBlogExcerpt] = useState('');
   const [blogImages, setBlogImages] = useState<BlogImage[]>([]);
+
+  // SEO automation
+  useAutoSEO(editingPost?.id, blogTitle);
 
   // Persist active tab in localStorage
   useEffect(() => {
