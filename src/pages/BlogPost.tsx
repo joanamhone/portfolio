@@ -16,6 +16,7 @@ import { trackPostView, trackCommentSubmit, trackTimeOnPage, trackScrollDepth, t
 import { useToast } from '../components/Toast';
 import PostLikeButton from '../components/PostLikeButton';
 import { generateStructuredData } from '../hooks/useAutoSEO';
+import SubscriptionPopup from '../components/SubscriptionPopup';
 
 interface CommentForm {
   author_name: string;
@@ -565,6 +566,9 @@ const BlogPostPage: React.FC = () => {
           </aside>
         </div>
       </div>
+
+      {/* Subscription Popup */}
+      <SubscriptionPopup isOpen={showPopup} onClose={closePopup} />
 
       {/* Subscription Popup */}
       <SubscriptionPopup isOpen={showPopup} onClose={closePopup} />

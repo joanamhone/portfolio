@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Heart } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useSubscriptionPopup } from '../hooks/useSubscriptionPopup';
+import { trackPostLike } from '../lib/analytics';
 
 interface PostLikeButtonProps {
   postId: string;
@@ -11,6 +13,7 @@ const PostLikeButton: React.FC<PostLikeButtonProps> = ({ postId, initialLikes = 
   const [likes, setLikes] = useState(initialLikes);
   const [isLiked, setIsLiked] = useState(false);
   const [userIp, setUserIp] = useState('');
+  const { showPopup } = useSubscriptionPopup();
 
   useEffect(() => {
     // Get user IP
@@ -82,6 +85,14 @@ const PostLikeButton: React.FC<PostLikeButtonProps> = ({ postId, initialLikes = 
         
         setLikes(prev => prev + 1);
         setIsLiked(true);
+        
+        // Track like event
+        trackPostLike(postId);
+        
+        // Show newsletter popup after 2 seconds
+        setTimeout(() => {
+          showPopup();
+        }, 2000);
       }
     } catch (error) {
       console.error('Error toggling like:', error);

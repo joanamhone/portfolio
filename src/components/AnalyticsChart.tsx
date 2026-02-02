@@ -10,16 +10,17 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({ data, timeRange }) => {
   const [animatedData, setAnimatedData] = useState<any[]>([]);
 
   // Group data by day
-  const groupedData = data.reduce((acc: any, item) => {
+  const groupedData = (data || []).reduce((acc: any, item) => {
     const date = new Date(item.created_at).toLocaleDateString();
     if (!acc[date]) {
-      acc[date] = { date, views: 0, comments: 0, shares: 0, total: 0 };
+      acc[date] = { date, views: 0, comments: 0, shares: 0, likes: 0, total: 0 };
     }
     
     if (item.event_type === 'post_view') acc[date].views++;
     if (item.event_type === 'comment_submit') acc[date].comments++;
     if (item.event_type === 'social_share') acc[date].shares++;
-    acc[date].total = acc[date].views + acc[date].comments + acc[date].shares;
+    if (item.event_type === 'post_like') acc[date].likes++;
+    acc[date].total = acc[date].views + acc[date].comments + acc[date].shares + acc[date].likes;
     
     return acc;
   }, {});
@@ -36,7 +37,7 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({ data, timeRange }) => {
   }, [chartData]);
 
   // Generate SVG path for line
-  const generatePath = (dataKey: 'views' | 'comments' | 'shares') => {
+  const generatePath = (dataKey: 'views' | 'comments' | 'shares' | 'likes') => {
     if (animatedData.length === 0 || maxValue === 0) return '';
     
     const points = animatedData.map((d, i) => {
@@ -74,7 +75,7 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({ data, timeRange }) => {
         ) : (
           <div className="space-y-6">
             {/* Legend */}
-            <div className="flex items-center justify-center space-x-8 text-sm">
+            <div className="flex items-center justify-center space-x-6 text-sm">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 rounded-full bg-gradient-to-r from-cyan-400 to-cyan-500 shadow-lg shadow-cyan-500/50"></div>
                 <span className="text-gray-600 dark:text-cyan-300">Views</span>
@@ -86,6 +87,10 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({ data, timeRange }) => {
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-400 to-purple-500 shadow-lg shadow-purple-500/50"></div>
                 <span className="text-gray-600 dark:text-purple-300">Shares</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 rounded-full bg-gradient-to-r from-red-400 to-red-500 shadow-lg shadow-red-500/50"></div>
+                <span className="text-gray-600 dark:text-red-300">Likes</span>
               </div>
             </div>
             
@@ -156,15 +161,28 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({ data, timeRange }) => {
                   transition={{ duration: 2, delay: 0.6, ease: "easeInOut" }}
                 />
                 
+                {/* Likes Line */}
+                <motion.path
+                  d={generatePath('likes')}
+                  fill="none"
+                  stroke="#ef4444"
+                  strokeWidth="3"
+                  filter="url(#glow)"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 2, delay: 0.9, ease: "easeInOut" }}
+                />
+                
                 {/* Data points */}
                 {animatedData.map((d, i) => {
                   const x = 20 + (i * 360) / Math.max(animatedData.length - 1, 1);
                   const yViews = 140 - ((d.views / maxValue) * 100);
                   const yComments = 140 - ((d.comments / maxValue) * 100);
                   const yShares = 140 - ((d.shares / maxValue) * 100);
+                  const yLikes = 140 - ((d.likes / maxValue) * 100);
                   
                   // Skip if coordinates are invalid
-                  if (isNaN(x) || isNaN(yViews) || isNaN(yComments) || isNaN(yShares)) {
+                  if (isNaN(x) || isNaN(yViews) || isNaN(yComments) || isNaN(yShares) || isNaN(yLikes)) {
                     return null;
                   }
                   
@@ -207,6 +225,19 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({ data, timeRange }) => {
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
                           transition={{ delay: 2.6 + i * 0.1 }}
+                        />
+                      )}
+                      {/* Likes point */}
+                      {d.likes > 0 && (
+                        <motion.circle
+                          cx={x}
+                          cy={yLikes}
+                          r="4"
+                          fill="#ef4444"
+                          className="drop-shadow-lg"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: 2.9 + i * 0.1 }}
                         />
                       )}
                     </g>
