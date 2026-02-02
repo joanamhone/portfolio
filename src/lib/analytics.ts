@@ -220,6 +220,7 @@ export const getPostAnalytics = async (postId: string): Promise<PostAnalytics | 
   if (!supabase) return null;
   
   try {
+    // Get analytics data
     const { data, error } = await supabase
       .from('analytics')
       .select('*')
@@ -227,9 +228,15 @@ export const getPostAnalytics = async (postId: string): Promise<PostAnalytics | 
     
     if (error) throw error;
     
+    // Get likes from post_likes table
+    const { count: likesCount } = await supabase
+      .from('post_likes')
+      .select('*', { count: 'exact', head: true })
+      .eq('post_id', postId);
+    
     const views = data?.filter(d => d.event_type === 'post_view').length || 0;
     const unique_views = new Set(data?.filter(d => d.event_type === 'post_view').map(d => d.session_id)).size;
-    const likes = data?.filter(d => d.event_type === 'post_like').length || 0;
+    const likes = likesCount || 0;
     const comments = data?.filter(d => d.event_type === 'comment_submit').length || 0;
     const shares = data?.filter(d => d.event_type === 'social_share').length || 0;
     
@@ -264,17 +271,19 @@ export const getOverallAnalytics = async () => {
   if (!supabase) return null;
   
   try {
-    const { data, error } = await supabase
-      .from('analytics')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const [analyticsRes, likesRes] = await Promise.all([
+      supabase.from('analytics').select('*').order('created_at', { ascending: false }),
+      supabase.from('post_likes').select('*', { count: 'exact', head: true })
+    ]);
+    
+    const { data, error } = analyticsRes;
+    const { count: totalLikes } = likesRes;
     
     if (error) throw error;
-    if (!data || data.length === 0) return null;
+    if (!data || data.length === 0) return { totalLikes: totalLikes || 0 };
     
     const totalViews = data.filter(d => d.event_type === 'post_view').length;
     const totalPostViews = data.filter(d => d.event_type === 'post_view').length;
-    const totalLikes = data.filter(d => d.event_type === 'post_like').length;
     const totalComments = data.filter(d => d.event_type === 'comment_submit').length;
     const totalShares = data.filter(d => d.event_type === 'social_share').length;
     const totalSignups = data.filter(d => d.event_type === 'newsletter_signup').length;
@@ -284,46 +293,16 @@ export const getOverallAnalytics = async () => {
     // Get unique sessions for visitor count
     const uniqueSessions = new Set(data.map(d => d.session_id)).size;
     
-    // Get top referrers
-    const referrers = data.filter(d => d.referrer && d.referrer !== '')
-      .reduce((acc: any, d) => {
-        try {
-          const domain = new URL(d.referrer).hostname;
-          acc[domain] = (acc[domain] || 0) + 1;
-        } catch {
-          acc[d.referrer] = (acc[d.referrer] || 0) + 1;
-        }
-        return acc;
-      }, {});
-    
-    const topReferrers = Object.entries(referrers || {})
-      .sort(([,a], [,b]) => (b as number) - (a as number))
-      .slice(0, 5);
-    
-    // Get popular search terms
-    const searches = data.filter(d => d.event_type === 'search' && d.metadata?.query)
-      .reduce((acc: any, d) => {
-        const query = JSON.parse(d.metadata).query.toLowerCase();
-        acc[query] = (acc[query] || 0) + 1;
-        return acc;
-      }, {});
-    
-    const topSearches = Object.entries(searches || {})
-      .sort(([,a], [,b]) => (b as number) - (a as number))
-      .slice(0, 5);
-    
     return {
       totalViews,
       totalPostViews,
-      totalLikes,
+      totalLikes: totalLikes || 0,
       totalComments,
       totalShares,
       totalSignups,
       totalLinkClicks,
       totalSearches,
       uniqueVisitors: uniqueSessions,
-      topReferrers,
-      topSearches,
       recentActivity: data.slice(0, 5)
     };
   } catch (error) {

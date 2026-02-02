@@ -69,6 +69,13 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ posts }) => {
       bg: 'bg-blue-100 dark:bg-blue-900'
     },
     {
+      name: 'Total Likes',
+      value: analytics?.totalLikes || 0,
+      icon: Heart,
+      color: 'text-red-600 dark:text-red-400',
+      bg: 'bg-red-100 dark:bg-red-900'
+    },
+    {
       name: 'Unique Visitors',
       value: analytics?.uniqueVisitors || 0,
       icon: Users,
@@ -83,25 +90,11 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ posts }) => {
       bg: 'bg-purple-100 dark:bg-purple-900'
     },
     {
-      name: 'Link Clicks',
-      value: analytics?.totalLinkClicks || 0,
-      icon: MousePointer,
-      color: 'text-orange-600 dark:text-orange-400',
-      bg: 'bg-orange-100 dark:bg-orange-900'
-    },
-    {
       name: 'Comments',
       value: analytics?.totalComments || 0,
       icon: MessageCircle,
-      color: 'text-red-600 dark:text-red-400',
-      bg: 'bg-red-100 dark:bg-red-900'
-    },
-    {
-      name: 'Searches',
-      value: analytics?.totalSearches || 0,
-      icon: Search,
-      color: 'text-indigo-600 dark:text-indigo-400',
-      bg: 'bg-indigo-100 dark:bg-indigo-900'
+      color: 'text-emerald-600 dark:text-emerald-400',
+      bg: 'bg-emerald-100 dark:bg-emerald-900'
     }
   ];
 
@@ -185,16 +178,16 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ posts }) => {
                         <span>{analytics?.views || 0}</span>
                       </div>
                       <div className="flex items-center text-gray-600 dark:text-gray-400">
+                        <Heart size={16} className="mr-1" />
+                        <span>{analytics?.likes || 0}</span>
+                      </div>
+                      <div className="flex items-center text-gray-600 dark:text-gray-400">
                         <Users size={16} className="mr-1" />
                         <span>{analytics?.unique_views || 0}</span>
                       </div>
                       <div className="flex items-center text-gray-600 dark:text-gray-400">
                         <Share2 size={16} className="mr-1" />
                         <span>{analytics?.shares || 0}</span>
-                      </div>
-                      <div className="flex items-center text-gray-600 dark:text-gray-400">
-                        <Clock size={16} className="mr-1" />
-                        <span>{analytics?.avg_time_on_page || 0}s</span>
                       </div>
                     </div>
                   </div>
