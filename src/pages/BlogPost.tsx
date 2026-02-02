@@ -14,6 +14,7 @@ import RelatedPosts from '../components/RelatedPosts';
 import { calculateReadingTime } from '../lib/utils';
 import { trackPostView, trackCommentSubmit, trackTimeOnPage, trackScrollDepth, trackLinkClick } from '../lib/analytics';
 import { useToast } from '../components/Toast';
+import PostLikeButton from '../components/PostLikeButton';
 
 interface CommentForm {
   author_name: string;
@@ -392,14 +393,17 @@ const BlogPostPage: React.FC = () => {
                 ))}
               </section>
 
-              {/* Social Share */}
+              {/* Social Share and Like */}
               <div className="border-t border-white/20 pt-6 mb-8">
-                <SocialShare
-                  url={window.location.href}
-                  title={post.title}
-                  description={post.excerpt || post.content.replace(/<[^>]*>/g, '').substring(0, 160)}
-                  postId={post.id}
-                />
+                <div className="flex items-center justify-between">
+                  <PostLikeButton postId={post.id} />
+                  <SocialShare
+                    url={window.location.href}
+                    title={post.title}
+                    description={post.excerpt || post.content.replace(/<[^>]*>/g, '').substring(0, 160)}
+                    postId={post.id}
+                  />
+                </div>
               </div>
             </motion.div>
 
