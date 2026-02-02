@@ -292,6 +292,11 @@ const BlogPostPage: React.FC = () => {
         modifiedTime={post?.updated_at}
         tags={post?.categories?.map(c => c.name)}
       />
+      
+      {/* Additional SEO meta tags */}
+      <meta name="robots" content="index, follow" />
+      <meta name="googlebot" content="index, follow" />
+      <link rel="canonical" href={`https://joanamhone.com/blog/${post.id}`} />
       <div className="container mx-auto py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Content */}
