@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/blog/([a-z0-9-]+)",
-      "destination": "https://xggcybwkrjiosppvrvra.supabase.co/functions/v1/blog-ssr/$1"
+      "destination": "/api/blog/$1"
     },
     {
       "source": "/blog/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})",

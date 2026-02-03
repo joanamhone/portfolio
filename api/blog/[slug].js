@@ -1,26 +1,14 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from '@supabase/supabase-js'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL,
+  process.env.VITE_SUPABASE_ANON_KEY
+)
 
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
-  }
+export default async function handler(req, res) {
+  const { slug } = req.query
 
   try {
-    const url = new URL(req.url)
-    const slug = url.pathname.split('/').pop()
-
-    // Use service role key for public access
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
-
     const { data: post, error } = await supabase
       .from('blog_posts')
       .select('*')
@@ -29,12 +17,9 @@ serve(async (req) => {
       .single()
 
     if (error || !post) {
-      return new Response(`<!DOCTYPE html>
+      return res.status(404).send(`<!DOCTYPE html>
 <html><head><title>Post Not Found</title></head>
-<body><h1>Post not found</h1><p>The blog post "${slug}" could not be found.</p></body></html>`, { 
-        status: 404, 
-        headers: { ...corsHeaders, 'Content-Type': 'text/html' } 
-      })
+<body><h1>Post not found</h1></body></html>`)
     }
 
     const cleanTitle = post.title.replace(/"/g, '&quot;')
@@ -50,13 +35,11 @@ serve(async (req) => {
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://joanamhone.com/blog/${post.slug}">
   
-  <!-- Open Graph -->
   <meta property="og:title" content="${cleanTitle}">
   <meta property="og:description" content="${cleanExcerpt}">
   <meta property="og:image" content="${post.featured_image || ''}">
   <meta property="og:type" content="article">
   
-  <!-- Structured Data -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -86,16 +69,10 @@ serve(async (req) => {
 </body>
 </html>`
 
-    return new Response(html, {
-      headers: { ...corsHeaders, 'Content-Type': 'text/html' },
-    })
+    res.setHeader('Content-Type', 'text/html')
+    res.status(200).send(html)
 
   } catch (error) {
-    return new Response(`<!DOCTYPE html>
-<html><head><title>Error</title></head>
-<body><h1>Error</h1><p>${error.message}</p></body></html>`, {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'text/html' },
-    })
+    res.status(500).send(`Error: ${error.message}`)
   }
-})
+}
