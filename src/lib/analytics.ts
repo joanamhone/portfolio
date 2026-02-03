@@ -293,6 +293,22 @@ export const getOverallAnalytics = async () => {
     // Get unique sessions for visitor count
     const uniqueSessions = new Set(data.map(d => d.session_id)).size;
     
+    // Get top referrers
+    const referrers = data.filter(d => d.referrer && d.referrer !== '')
+      .reduce((acc: any, d) => {
+        try {
+          const domain = new URL(d.referrer).hostname;
+          acc[domain] = (acc[domain] || 0) + 1;
+        } catch {
+          acc[d.referrer] = (acc[d.referrer] || 0) + 1;
+        }
+        return acc;
+      }, {});
+    
+    const topReferrers = Object.entries(referrers || {})
+      .sort(([,a], [,b]) => (b as number) - (a as number))
+      .slice(0, 5);
+    
     return {
       totalViews,
       totalPostViews,
@@ -303,6 +319,7 @@ export const getOverallAnalytics = async () => {
       totalLinkClicks,
       totalSearches,
       uniqueVisitors: uniqueSessions,
+      topReferrers,
       recentActivity: data.slice(0, 5)
     };
   } catch (error) {
