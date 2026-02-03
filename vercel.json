@@ -1,11 +1,15 @@
 {
   "rewrites": [
     {
+      "source": "/blog/([a-z0-9-]+)",
+      "destination": "https://xggcybwkrjiosppvrvra.supabase.co/functions/v1/blog-ssr/$1"
+    },
+    {
       "source": "/blog/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})",
       "destination": "/index.html"
     },
     {
-      "source": "/((?!api/|blog/).*)",
+      "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
   ]
