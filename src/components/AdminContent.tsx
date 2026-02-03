@@ -10,6 +10,7 @@ import CommentsManager from './CommentsManager';
 import CategoriesManager from './CategoriesManager';
 import EnhancedBlogEditor from './EnhancedBlogEditor';
 import { useAutoSEO } from '../hooks/useAutoSEO';
+import Pagination from './Pagination';
 
 interface BlogImage {
   id: string;
@@ -54,6 +55,9 @@ const AdminContent: React.FC<AdminContentProps> = ({ onLogout }) => {
   const [showPostForm, setShowPostForm] = useState(false);
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPosts, setTotalPosts] = useState(0);
+  const postsPerPage = 10;
 
   // Blog editor state
   const [blogTitle, setBlogTitle] = useState('');
@@ -114,9 +118,12 @@ const AdminContent: React.FC<AdminContentProps> = ({ onLogout }) => {
     try {
       console.log('Fetching admin data...');
       
-      // Test direct subscribers query
       const testSubs = await supabase.from('subscribers').select('*');
       console.log('Direct subscribers test:', testSubs);
+      
+      // Fetch posts with pagination
+      const from = (currentPage - 1) * postsPerPage;
+      const to = from + postsPerPage - 1;
       
       const [postsRes, commentsRes, subscribersRes, categoriesRes] = await Promise.all([
         supabase.from('blog_posts').select(`
@@ -124,7 +131,7 @@ const AdminContent: React.FC<AdminContentProps> = ({ onLogout }) => {
           post_categories(
             categories(*)
           )
-        `).order('created_at', { ascending: false }),
+        `, { count: 'exact' }).order('created_at', { ascending: false }).range(from, to),
         supabase.from('comments').select('*').order('created_at', { ascending: false }),
         supabase.from('subscribers').select('*').order('subscribed_at', { ascending: false }),
         getAllCategories()
@@ -139,6 +146,7 @@ const AdminContent: React.FC<AdminContentProps> = ({ onLogout }) => {
       })) || [];
       
       setPosts(transformedPosts);
+      setTotalPosts(postsRes.count || 0);
       setComments(commentsRes.data || []);
       setSubscribers(subscribersRes.data || []);
       setCategories(categoriesRes.data || []);
@@ -538,6 +546,18 @@ const AdminContent: React.FC<AdminContentProps> = ({ onLogout }) => {
                             ))}
                           </tbody>
                         </table>
+                        
+                        {/* Pagination */}
+                        <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+                          <Pagination
+                            currentPage={currentPage}
+                            totalPages={Math.ceil(totalPosts / postsPerPage)}
+                            onPageChange={(page) => {
+                              setCurrentPage(page);
+                              fetchData();
+                            }}
+                          />
+                        </div>
                       </div>
                     )}
                   </div>

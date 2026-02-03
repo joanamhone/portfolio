@@ -8,6 +8,8 @@ import { BlogSkeleton } from '../components/Skeleton';
 import SubscriptionPopup from '../components/SubscriptionPopup';
 import { useSubscriptionPopup } from '../hooks/useSubscriptionPopup';
 import SEO from '../components/SEO';
+import Breadcrumbs from '../components/Breadcrumbs';
+import Pagination from '../components/Pagination';
 
 const Blog: React.FC = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -17,6 +19,9 @@ const Blog: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPosts, setTotalPosts] = useState(0);
+  const postsPerPage = 6;
   const { showPopup, closePopup } = useSubscriptionPopup();
 
   useEffect(() => {
@@ -52,16 +57,21 @@ const Blog: React.FC = () => {
     fetchCategories();
   }, []);
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (page = 1) => {
     try {
-      const { data, error } = await supabase
+      const from = (page - 1) * postsPerPage;
+      const to = from + postsPerPage - 1;
+      
+      const { data, error, count } = await supabase
         .from('blog_posts')
-        .select('*')
+        .select('*', { count: 'exact' })
         .eq('published', true)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range(from, to);
 
       if (error) throw error;
       setPosts(data || []);
+      setTotalPosts(count || 0);
     } catch (error) {
       console.error('Error fetching posts:', error);
     } finally {
@@ -79,21 +89,24 @@ const Blog: React.FC = () => {
     }
   };
 
-  const handleSearch = async () => {
+  const handleSearch = async (page = 1) => {
     if (!isSupabaseConfigured) return;
     
     setSearching(true);
     try {
-      const { data, error } = await searchPosts(searchQuery, selectedCategory || undefined);
+      const from = (page - 1) * postsPerPage;
+      const to = from + postsPerPage - 1;
+      
+      const { data, error, count } = await searchPosts(searchQuery, selectedCategory || undefined, from, to);
       if (error) throw error;
       
-      // Transform the data to include categories
       const transformedPosts = data?.map(post => ({
         ...post,
         categories: post.post_categories?.map((pc: any) => pc.categories).filter(Boolean) || []
       })) || [];
       
       setPosts(transformedPosts);
+      setTotalPosts(count || 0);
     } catch (error) {
       console.error('Error searching posts:', error);
     } finally {
@@ -104,15 +117,17 @@ const Blog: React.FC = () => {
   const clearFilters = () => {
     setSearchQuery('');
     setSelectedCategory('');
-    fetchPosts();
+    setCurrentPage(1);
+    fetchPosts(1);
   };
 
   useEffect(() => {
     const delayedSearch = setTimeout(() => {
+      setCurrentPage(1);
       if (searchQuery || selectedCategory) {
-        handleSearch();
+        handleSearch(1);
       } else if (!searchQuery && !selectedCategory) {
-        fetchPosts();
+        fetchPosts(1);
       }
     }, 300);
 
@@ -188,6 +203,7 @@ const Blog: React.FC = () => {
       {/* Header */}
       <header className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
+          <Breadcrumbs />
           <Link to="/" className="inline-flex items-center text-white/70 hover:text-accent mb-6 transition-colors">
             <ChevronLeft size={16} className="mr-1" />
             <span>Back to home</span>
@@ -335,6 +351,23 @@ const Blog: React.FC = () => {
                       </Link>
                     </motion.article>
                   ))}
+                  
+                  {/* Pagination */}
+                  <div className="col-span-full">
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={Math.ceil(totalPosts / postsPerPage)}
+                      onPageChange={(page) => {
+                        setCurrentPage(page);
+                        if (searchQuery || selectedCategory) {
+                          handleSearch(page);
+                        } else {
+                          fetchPosts(page);
+                        }
+                      }}
+                      className="mt-8"
+                    />
+                  </div>
                 </div>
               )}
             </div>

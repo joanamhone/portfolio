@@ -17,6 +17,7 @@ import { useToast } from '../components/Toast';
 import PostLikeButton from '../components/PostLikeButton';
 import { generateStructuredData } from '../hooks/useAutoSEO';
 import SubscriptionPopup from '../components/SubscriptionPopup';
+import Breadcrumbs from '../components/Breadcrumbs';
 
 interface CommentForm {
   author_name: string;
@@ -306,8 +307,11 @@ const BlogPostPage: React.FC = () => {
       {/* Additional SEO meta tags */}
       <meta name="robots" content="index, follow" />
       <meta name="googlebot" content="index, follow" />
+      <meta name="author" content="Joana Promise Mhone" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="canonical" href={`https://joanamhone.com/blog/${post.id}`} />
       <div className="container mx-auto py-8">
+        <Breadcrumbs />
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Content */}
           <article className="lg:col-span-3">

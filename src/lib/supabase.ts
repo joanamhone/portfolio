@@ -69,9 +69,9 @@ export const getAllCategories = async () => {
     .order('name');
 };
 
-export const searchPosts = async (query?: string, categoryId?: string) => {
+export const searchPosts = async (query?: string, categoryId?: string, from?: number, to?: number) => {
   if (!isSupabaseConfigured || !supabase) {
-    return { data: [], error: null };
+    return { data: [], error: null, count: 0 };
   }
 
   let queryBuilder = supabase
@@ -81,7 +81,7 @@ export const searchPosts = async (query?: string, categoryId?: string) => {
       post_categories(
         categories(*)
       )
-    `)
+    `, { count: 'exact' })
     .eq('published', true);
 
   if (query) {
@@ -90,6 +90,10 @@ export const searchPosts = async (query?: string, categoryId?: string) => {
 
   if (categoryId) {
     queryBuilder = queryBuilder.eq('post_categories.category_id', categoryId);
+  }
+
+  if (from !== undefined && to !== undefined) {
+    queryBuilder = queryBuilder.range(from, to);
   }
 
   return await queryBuilder.order('created_at', { ascending: false });
