@@ -1,12 +1,29 @@
 {
-  "rewrites": [
+  "builds": [
     {
-      "source": "/blog/(.*)",
-      "destination": "/blog/$1"
+      "src": "blog/package.json",
+      "use": "@vercel/next"
     },
     {
-      "source": "/((?!api/.*).*)",
-      "destination": "/index.html"
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/blog/sitemap\.xml",
+      "dest": "/blog/sitemap.xml"
+    },
+    {
+      "src": "/blog/(.*)",
+      "dest": "/blog/$1"
+    },
+    {
+      "src": "/((?!api/.*).*)",
+      "dest": "/index.html"
     }
   ]
 }
