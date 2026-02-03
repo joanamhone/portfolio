@@ -173,21 +173,25 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ posts }) => {
                       </p>
                     </div>
                     <div className="flex items-center space-x-6 text-sm">
-                      <div className="flex items-center text-gray-600 dark:text-gray-400">
-                        <Eye size={16} className="mr-1" />
-                        <span>{analytics?.views || 0}</span>
+                      <div className="flex flex-col items-center text-gray-600 dark:text-gray-400">
+                        <Eye size={16} className="mb-1" />
+                        <span className="font-medium">{analytics?.views || 0}</span>
+                        <span className="text-xs text-gray-500">Views</span>
                       </div>
-                      <div className="flex items-center text-gray-600 dark:text-gray-400">
-                        <Heart size={16} className="mr-1" />
-                        <span>{analytics?.likes || 0}</span>
+                      <div className="flex flex-col items-center text-gray-600 dark:text-gray-400">
+                        <Heart size={16} className="mb-1" />
+                        <span className="font-medium">{analytics?.likes || 0}</span>
+                        <span className="text-xs text-gray-500">Likes</span>
                       </div>
-                      <div className="flex items-center text-gray-600 dark:text-gray-400">
-                        <Users size={16} className="mr-1" />
-                        <span>{analytics?.unique_views || 0}</span>
+                      <div className="flex flex-col items-center text-gray-600 dark:text-gray-400">
+                        <Users size={16} className="mb-1" />
+                        <span className="font-medium">{analytics?.unique_views || 0}</span>
+                        <span className="text-xs text-gray-500">Unique</span>
                       </div>
-                      <div className="flex items-center text-gray-600 dark:text-gray-400">
-                        <Share2 size={16} className="mr-1" />
-                        <span>{analytics?.shares || 0}</span>
+                      <div className="flex flex-col items-center text-gray-600 dark:text-gray-400">
+                        <Share2 size={16} className="mb-1" />
+                        <span className="font-medium">{analytics?.shares || 0}</span>
+                        <span className="text-xs text-gray-500">Shares</span>
                       </div>
                     </div>
                   </div>

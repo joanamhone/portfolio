@@ -539,13 +539,6 @@ const BlogPostPage: React.FC = () => {
               categories={post.categories?.map(c => c.id)}
             />
 
-            {/* Ad Space */}
-            <div className="card">
-              <div className="bg-secondary-light/50 border border-white/10 rounded-lg p-8 text-center">
-                <p className="text-white/50 text-sm">Advertisement Space - 300x600</p>
-              </div>
-            </div>
-
             {/* Newsletter Signup */}
             <div className="card">
               <h3 className="text-xl font-bold mb-4">Stay Updated</h3>

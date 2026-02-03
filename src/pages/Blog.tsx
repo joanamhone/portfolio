@@ -254,14 +254,6 @@ const Blog: React.FC = () => {
           </div>
         </div>
       </motion.section>
-      {/* Ad Space - Top Banner */}
-      <motion.div variants={itemVariants} className="mb-8 px-4 sm:px-6 lg:px-8">
-        <div className="container mx-auto">
-          <div className="bg-secondary-light/50 border border-white/10 rounded-lg p-8 text-center">
-            <p className="text-white/50 text-sm">Advertisement Space - 728x90</p>
-          </div>
-        </div>
-      </motion.div>
 
       {/* Blog Posts */}
       <section className="py-8 mb-8 px-4 sm:px-6 lg:px-8">
@@ -349,13 +341,6 @@ const Blog: React.FC = () => {
 
             {/* Sidebar */}
             <div className="space-y-8">
-              {/* Ad Space - Sidebar */}
-              <motion.div variants={itemVariants} className="card">
-                <div className="bg-secondary-light/50 border border-white/10 rounded-lg p-8 text-center">
-                  <p className="text-white/50 text-sm">Advertisement Space - 300x250</p>
-                </div>
-              </motion.div>
-
               {/* Newsletter Signup */}
               <motion.div variants={itemVariants} className="card">
                 <h3 className="text-xl font-bold mb-4">Stay Updated</h3>
@@ -412,15 +397,6 @@ const Blog: React.FC = () => {
           </div>
         </div>
       </section>
-
-      {/* Ad Space - Bottom Banner */}
-      <motion.div variants={itemVariants} className="py-8 px-4 sm:px-6 lg:px-8">
-        <div className="container mx-auto">
-          <div className="bg-secondary-light/50 border border-white/10 rounded-lg p-8 text-center">
-            <p className="text-white/50 text-sm">Advertisement Space - 728x90</p>
-          </div>
-        </div>
-      </motion.div>
 
       {/* Subscription Popup */}
       <SubscriptionPopup isOpen={showPopup} onClose={closePopup} />
