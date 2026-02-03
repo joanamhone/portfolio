@@ -317,7 +317,7 @@ const Blog: React.FC = () => {
                       </div>
                       
                       <h2 className="text-2xl font-bold mb-4 hover:text-accent transition-colors">
-                        <Link to={`/blog/${post.id}`}>{post.title}</Link>
+                        <Link to={`/blog/${post.slug || post.id}`}>{post.title}</Link>
                       </h2>
                       
                       <p className="text-white/80 mb-4 leading-relaxed">
@@ -344,7 +344,7 @@ const Blog: React.FC = () => {
                       )}
                       
                       <Link 
-                        to={`/blog/${post.id}`}
+                        to={`/blog/${post.slug || post.id}`}
                         className="inline-flex items-center text-accent hover:text-accent-cyber transition-colors font-medium"
                       >
                         Read More →

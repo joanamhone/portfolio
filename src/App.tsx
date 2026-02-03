@@ -30,6 +30,7 @@ const AnimatedRoutes = () => {
         <Route path="/cybersecurity" element={<CyberSecurityPortfolio />} />
         <Route path="/software" element={<SoftwarePortfolio />} />
         <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
         <Route path="/blog/:id" element={<BlogPost />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/unsubscribe/:token" element={<UnsubscribePage />} />

@@ -27,8 +27,9 @@ interface CommentForm {
 }
 
 const BlogPostPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { slug, id } = useParams<{ slug?: string; id?: string }>();
   const [post, setPost] = useState<BlogPost | null>(null);
+  const identifier = slug || id; // Use slug first, fallback to id
   const [comments, setComments] = useState<Comment[]>([]);
   const [blogImages, setBlogImages] = useState<any[]>([]);
   const [userLikes, setUserLikes] = useState<Record<string, boolean>>({});
@@ -43,51 +44,51 @@ const BlogPostPage: React.FC = () => {
 
   // Scroll tracking
   useEffect(() => {
-    if (!id) return;
+    if (!identifier) return;
     
     let maxScroll = 0;
     const handleScroll = () => {
       const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
       if (scrollPercent > maxScroll && scrollPercent % 25 === 0) { // Track at 25%, 50%, 75%, 100%
         maxScroll = scrollPercent;
-        trackScrollDepth(id, scrollPercent);
+        trackScrollDepth(post?.id || identifier, scrollPercent);
       }
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [id]);
+  }, [identifier, post]);
 
   // Track time on page when leaving
   useEffect(() => {
-    if (!id) return;
+    if (!identifier) return;
     
     const handleBeforeUnload = () => {
-      trackTimeOnPage(id);
+      trackTimeOnPage(post?.id || identifier);
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      trackTimeOnPage(id); // Track when component unmounts
+      trackTimeOnPage(post?.id || identifier); // Track when component unmounts
     };
-  }, [id]);
+  }, [identifier, post]);
 
   // Track link clicks
   useEffect(() => {
-    if (!id) return;
+    if (!identifier) return;
     
     const handleLinkClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (target.tagName === 'A') {
         const link = target as HTMLAnchorElement;
-        trackLinkClick(link.href, link.textContent || '', id);
+        trackLinkClick(link.href, link.textContent || '', post?.id || identifier);
       }
     };
 
     document.addEventListener('click', handleLinkClick);
     return () => document.removeEventListener('click', handleLinkClick);
-  }, [id]);
+  }, [identifier, post]);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<CommentForm>();
 
@@ -103,11 +104,12 @@ const BlogPostPage: React.FC = () => {
     if (!isSupabaseConfigured) {
       // Use mock data when Supabase is not configured
       setPost({
-        id: id || '1',
+        id: identifier || '1',
         title: 'Sample Blog Post',
         content: 'This is a sample blog post content. In a real application, this would be loaded from your Supabase database.',
         excerpt: 'This is a sample excerpt.',
         featured_image: 'https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg',
+        slug: identifier || 'sample-post',
         published: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
@@ -117,17 +119,48 @@ const BlogPostPage: React.FC = () => {
       return;
     }
 
-    if (id) {
+    if (identifier) {
       fetchPost();
       fetchComments();
       // Track post view
-      trackPostView(id);
+      trackPostView(identifier);
     }
-  }, [id]);
+  }, [identifier]);
 
   const fetchPost = async () => {
     try {
-      const { data, error } = await getPostWithCategories(id!);
+      let data, error;
+      
+      // Try to fetch by slug first, then by id
+      if (slug) {
+        const result = await supabase
+          .from('blog_posts')
+          .select(`
+            *,
+            post_categories(
+              categories(*)
+            )
+          `)
+          .eq('slug', slug)
+          .eq('published', true)
+          .single();
+        data = result.data;
+        error = result.error;
+      } else if (id) {
+        const result = await supabase
+          .from('blog_posts')
+          .select(`
+            *,
+            post_categories(
+              categories(*)
+            )
+          `)
+          .eq('id', id)
+          .eq('published', true)
+          .single();
+        data = result.data;
+        error = result.error;
+      }
 
       if (error) throw error;
       
@@ -153,7 +186,7 @@ const BlogPostPage: React.FC = () => {
 
   const fetchComments = async () => {
     try {
-      const { data, error } = await getCommentsWithReplies(id!);
+      const { data, error } = await getCommentsWithReplies(post?.id || identifier!);
 
       if (error) throw error;
       setComments(data);
@@ -201,7 +234,7 @@ const BlogPostPage: React.FC = () => {
       const { error: commentError } = await supabase
         .from('comments')
         .insert({
-          post_id: id,
+          post_id: post?.id || identifier,
           parent_id: data.parent_id || null,
           author_name: data.author_name,
           author_email: data.author_email,
@@ -230,7 +263,7 @@ const BlogPostPage: React.FC = () => {
       showToast('success', '🎉 Thanks for your comment! It will appear after approval.');
       
       // Track comment submission
-      trackCommentSubmit(id!);
+      trackCommentSubmit(post?.id || identifier!);
       
       fetchComments(); // Refresh comments
       fetchUserLikes(data.author_email);
@@ -308,7 +341,7 @@ const BlogPostPage: React.FC = () => {
       <meta name="googlebot" content="index, follow" />
       <meta name="author" content="Joana Promise Mhone" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <link rel="canonical" href={`https://joanamhone.com/blog/${post.id}`} />
+      <link rel="canonical" href={`https://joanamhone.com/blog/${post.slug || post.id}`} />
       <div className="container mx-auto py-8">
         <Breadcrumbs />
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
