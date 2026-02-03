@@ -155,8 +155,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     return {
       props: {
         post
-      },
-      revalidate: 3600
+      }
     }
   } catch (error) {
     console.error('Error fetching post:', error)

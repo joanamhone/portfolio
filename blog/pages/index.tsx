@@ -92,16 +92,14 @@ export const getStaticProps: GetStaticProps = async () => {
     return {
       props: {
         posts: posts || []
-      },
-      revalidate: 3600 // Revalidate every hour
+      }
     }
   } catch (error) {
     console.error('Error fetching posts:', error)
     return {
       props: {
         posts: []
-      },
-      revalidate: 60
+      }
     }
   }
 }
