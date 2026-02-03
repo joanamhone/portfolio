@@ -1,18 +1,12 @@
 {
-  "builds": [
+  "rewrites": [
     {
-      "src": "blog/package.json",
-      "use": "@vercel/next"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/blog/(.*)",
-      "dest": "/blog/$1"
+      "source": "/blog/(.*)",
+      "destination": "/blog/$1"
     },
     {
-      "src": "/((?!api/.*).*)",
-      "dest": "/index.html"
+      "source": "/((?!api/.*).*)",
+      "destination": "/index.html"
     }
   ]
 }
