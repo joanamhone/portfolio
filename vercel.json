@@ -1,11 +1,9 @@
 {
-  "builds": [
-    {
-      "src": "blog/package.json",
-      "use": "@vercel/next"
-    }
-  ],
   "rewrites": [
+    {
+      "source": "/blog",
+      "destination": "/blog/"
+    },
     {
       "source": "/blog/(.*)",
       "destination": "/blog/$1"
