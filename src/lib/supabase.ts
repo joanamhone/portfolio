@@ -18,6 +18,7 @@ export interface BlogPost {
   content: string;
   excerpt?: string;
   featured_image?: string;
+  slug?: string;
   published: boolean;
   created_at: string;
   updated_at: string;
