@@ -63,6 +63,7 @@ const AdminContent: React.FC<AdminContentProps> = ({ onLogout }) => {
   const [blogTitle, setBlogTitle] = useState('');
   const [blogContent, setBlogContent] = useState('');
   const [blogExcerpt, setBlogExcerpt] = useState('');
+  const [blogSlug, setBlogSlug] = useState('');
   const [blogImages, setBlogImages] = useState<BlogImage[]>([]);
 
   // SEO automation
@@ -170,6 +171,7 @@ const AdminContent: React.FC<AdminContentProps> = ({ onLogout }) => {
         title: blogTitle,
         content: blogContent,
         excerpt: blogExcerpt,
+        slug: blogSlug,
         featured_image: blogImages.find(img => img.position === 'top')?.url || '',
         images: JSON.stringify(blogImages),
         published: false // Always save as draft initially
@@ -235,6 +237,7 @@ const AdminContent: React.FC<AdminContentProps> = ({ onLogout }) => {
     setBlogTitle('');
     setBlogContent('');
     setBlogExcerpt('');
+    setBlogSlug('');
     setBlogImages([]);
     setSelectedCategories([]);
     setEditingPost(null);
@@ -246,6 +249,7 @@ const AdminContent: React.FC<AdminContentProps> = ({ onLogout }) => {
     setBlogTitle(post.title);
     setBlogContent(post.content);
     setBlogExcerpt(post.excerpt || '');
+    setBlogSlug(post.slug || '');
     
     // Parse images from JSON if they exist
     try {
@@ -458,10 +462,12 @@ const AdminContent: React.FC<AdminContentProps> = ({ onLogout }) => {
                     title={blogTitle}
                     content={blogContent}
                     excerpt={blogExcerpt}
+                    slug={blogSlug}
                     images={blogImages}
                     onTitleChange={setBlogTitle}
                     onContentChange={setBlogContent}
                     onExcerptChange={setBlogExcerpt}
+                    onSlugChange={setBlogSlug}
                     onImagesChange={setBlogImages}
                     onSave={onSubmitPost}
                     onCancel={resetBlogEditor}

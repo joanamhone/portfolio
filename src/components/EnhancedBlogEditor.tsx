@@ -15,10 +15,12 @@ interface EnhancedBlogEditorProps {
   title: string;
   content: string;
   excerpt: string;
+  slug: string;
   images: BlogImage[];
   onTitleChange: (title: string) => void;
   onContentChange: (content: string) => void;
   onExcerptChange: (excerpt: string) => void;
+  onSlugChange: (slug: string) => void;
   onImagesChange: (images: BlogImage[]) => void;
   onSave: () => void;
   onCancel: () => void;
@@ -29,10 +31,12 @@ const EnhancedBlogEditor: React.FC<EnhancedBlogEditorProps> = ({
   title,
   content,
   excerpt,
+  slug,
   images,
   onTitleChange,
   onContentChange,
   onExcerptChange,
+  onSlugChange,
   onImagesChange,
   onSave,
   onCancel,
@@ -43,6 +47,23 @@ const EnhancedBlogEditor: React.FC<EnhancedBlogEditorProps> = ({
   const [newImageAlt, setNewImageAlt] = useState('');
   const [newImagePosition, setNewImagePosition] = useState<BlogImage['position']>('top');
   const quillRef = useRef<ReactQuill>(null);
+
+  // Auto-generate slug from title
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+  };
+
+  const handleTitleChange = (newTitle: string) => {
+    onTitleChange(newTitle);
+    if (!isEditing) {
+      onSlugChange(generateSlug(newTitle));
+    }
+  };
 
   const addImage = () => {
     if (!newImageUrl.trim()) return;
@@ -186,10 +207,29 @@ const EnhancedBlogEditor: React.FC<EnhancedBlogEditorProps> = ({
             <input
               type="text"
               value={title}
-              onChange={(e) => onTitleChange(e.target.value)}
+              onChange={(e) => handleTitleChange(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Enter post title..."
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              URL Slug
+            </label>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-500 dark:text-gray-400">/blog/</span>
+              <input
+                type="text"
+                value={slug}
+                onChange={(e) => onSlugChange(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="url-slug"
+              />
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Auto-generated from title. Edit if needed.
+            </p>
           </div>
 
           <div>
