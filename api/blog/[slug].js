@@ -7,11 +7,15 @@ const supabase = createClient(
 
 export default async function handler(req, res) {
   const { slug } = req.query
-
-  // Debug logging
-  console.log('API called with slug:', slug)
-  console.log('Supabase URL:', process.env.VITE_SUPABASE_URL ? 'Set' : 'Missing')
-  console.log('Supabase Key:', process.env.VITE_SUPABASE_ANON_KEY ? 'Set' : 'Missing')
+  const userAgent = req.headers['user-agent'] || ''
+  
+  // Check if it's a bot/crawler
+  const isBot = /googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|developers\.google\.com/i.test(userAgent)
+  
+  // If it's a regular user, redirect to main app
+  if (!isBot) {
+    return res.redirect(302, `/?redirect=/blog/${slug}`)
+  }
 
   try {
     const { data: post, error } = await supabase
@@ -21,17 +25,16 @@ export default async function handler(req, res) {
       .eq('published', true)
       .single()
 
-    console.log('Database query result:', { post: post?.title, error: error?.message })
-
     if (error || !post) {
       return res.status(404).send(`<!DOCTYPE html>
 <html><head><title>Post Not Found</title></head>
-<body><h1>Post not found</h1><p>Slug: ${slug}</p><p>Error: ${error?.message || 'No post found'}</p></body></html>`)
+<body><h1>Post not found</h1><p>Slug: ${slug}</p></body></html>`)
     }
 
     const cleanTitle = post.title.replace(/"/g, '&quot;')
     const cleanExcerpt = (post.excerpt || post.content.replace(/<[^>]*>/g, '').substring(0, 160)).replace(/"/g, '&quot;')
 
+    // Serve SEO-optimized HTML for bots only
     const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -63,9 +66,11 @@ export default async function handler(req, res) {
   }
   </script>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-    h1 { color: #333; }
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #111827; color: #e5e7eb; }
+    h1 { color: #f9fafb; font-size: 2rem; margin-bottom: 1rem; }
     .content { line-height: 1.6; }
+    .content p { margin-bottom: 1rem; }
+    .content a { color: #60a5fa; }
   </style>
 </head>
 <body>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { HelmetProvider } from 'react-helmet-async';
 import { ToastProvider } from './components/Toast';
@@ -22,6 +22,16 @@ import CursorGlow from './components/CursorGlow';
 // Router wrapper to enable location-based animations
 const AnimatedRoutes = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Handle redirects from API route
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const redirect = urlParams.get('redirect');
+    if (redirect) {
+      navigate(redirect, { replace: true });
+    }
+  }, [location, navigate]);
   
   return (
     <AnimatePresence mode="wait">
