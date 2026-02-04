@@ -12,11 +12,17 @@ export default async function handler(req, res) {
   // Check if it's a bot/crawler
   const isBot = /googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|developers\.google\.com/i.test(userAgent)
   
+  console.log('User Agent:', userAgent)
+  console.log('Is Bot:', isBot)
+  
   // If it's a regular user, redirect to main app
   if (!isBot) {
+    console.log('Redirecting user to main app')
     return res.redirect(302, `/?redirect=/blog/${slug}`)
   }
 
+  console.log('Serving SEO HTML to bot')
+  
   try {
     const { data: post, error } = await supabase
       .from('blog_posts')
