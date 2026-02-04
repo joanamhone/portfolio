@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/blog/([a-z0-9-]+)",
+      "destination": "/api/blog/$1"
+    },
+    {
       "source": "/blog/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})",
       "destination": "/index.html"
     },
