@@ -8,6 +8,11 @@ const supabase = createClient(
 export default async function handler(req, res) {
   const { slug } = req.query
 
+  // Debug logging
+  console.log('API called with slug:', slug)
+  console.log('Supabase URL:', process.env.VITE_SUPABASE_URL ? 'Set' : 'Missing')
+  console.log('Supabase Key:', process.env.VITE_SUPABASE_ANON_KEY ? 'Set' : 'Missing')
+
   try {
     const { data: post, error } = await supabase
       .from('blog_posts')
@@ -16,10 +21,12 @@ export default async function handler(req, res) {
       .eq('published', true)
       .single()
 
+    console.log('Database query result:', { post: post?.title, error: error?.message })
+
     if (error || !post) {
       return res.status(404).send(`<!DOCTYPE html>
 <html><head><title>Post Not Found</title></head>
-<body><h1>Post not found</h1></body></html>`)
+<body><h1>Post not found</h1><p>Slug: ${slug}</p><p>Error: ${error?.message || 'No post found'}</p></body></html>`)
     }
 
     const cleanTitle = post.title.replace(/"/g, '&quot;')
@@ -73,6 +80,9 @@ export default async function handler(req, res) {
     res.status(200).send(html)
 
   } catch (error) {
-    res.status(500).send(`Error: ${error.message}`)
+    console.error('API Error:', error)
+    res.status(500).send(`<!DOCTYPE html>
+<html><head><title>Error</title></head>
+<body><h1>Error</h1><p>${error.message}</p></body></html>`)
   }
 }
